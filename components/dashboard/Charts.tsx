@@ -15,7 +15,15 @@ import {
   Cell,
 } from 'recharts'
 
-const COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f97316', '#eab308', '#22c55e', '#14b8a6']
+// Optim theme colors - green accent
+const THEME_COLORS = {
+  primary: '#40A83E',
+  primaryLight: '#40A83E',
+  primaryLighter: 'rgba(64, 168, 62, 0.3)',
+}
+
+// Multi-color palette for pie chart - using green variations
+const COLORS = ['#40A83E', '#2d7a2d', '#10B981', '#34D399', '#6EE7B7', '#A7F3D0', '#22C55E', '#4ADE80']
 
 interface CostChartProps {
   data: { date: string; totalCost: number; totalRequests: number }[]
@@ -35,8 +43,8 @@ export function CostChart({ data }: CostChartProps) {
           <AreaChart data={formattedData}>
             <defs>
               <linearGradient id="colorCost" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                <stop offset="5%" stopColor={THEME_COLORS.primary} stopOpacity={0.3} />
+                <stop offset="95%" stopColor={THEME_COLORS.primary} stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
@@ -59,14 +67,16 @@ export function CostChart({ data }: CostChartProps) {
                 backgroundColor: 'var(--surface)',
                 border: '1px solid var(--border)',
                 borderRadius: '8px',
+                color: 'var(--foreground)',
               }}
               labelStyle={{ color: 'var(--foreground)' }}
+              itemStyle={{ color: 'var(--foreground-secondary)' }}
               formatter={(value: number) => [`$${value.toFixed(2)}`, 'Cost']}
             />
             <Area
               type="monotone"
               dataKey="totalCost"
-              stroke="#6366f1"
+              stroke={THEME_COLORS.primary}
               strokeWidth={2}
               fillOpacity={1}
               fill="url(#colorCost)"
@@ -129,10 +139,21 @@ export function CostByModel({ data }: CostByModelProps) {
                 backgroundColor: 'var(--surface)',
                 border: '1px solid var(--border)',
                 borderRadius: '8px',
+                color: 'var(--foreground)',
               }}
+              labelStyle={{ color: 'var(--foreground)' }}
+              itemStyle={{ color: 'var(--foreground-secondary)' }}
               formatter={(value: number) => [`$${value.toFixed(2)}`, 'Cost']}
             />
-            <Bar dataKey="cost" fill="#6366f1" radius={[0, 4, 4, 0]} />
+            <Bar
+              dataKey="cost"
+              fill={THEME_COLORS.primary}
+              radius={[0, 4, 4, 0]}
+              activeBar={{
+                fill: THEME_COLORS.primaryLight,
+                filter: 'brightness(1.1)',
+              }}
+            />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -177,7 +198,12 @@ export function CostByProvider({ data }: CostByProviderProps) {
               dataKey="value"
             >
               {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                  stroke="var(--surface)"
+                  strokeWidth={2}
+                />
               ))}
             </Pie>
             <Tooltip
@@ -185,7 +211,10 @@ export function CostByProvider({ data }: CostByProviderProps) {
                 backgroundColor: 'var(--surface)',
                 border: '1px solid var(--border)',
                 borderRadius: '8px',
+                color: 'var(--foreground)',
               }}
+              labelStyle={{ color: 'var(--foreground)' }}
+              itemStyle={{ color: 'var(--foreground-secondary)' }}
               formatter={(value: number) => [`$${value.toFixed(2)}`, 'Cost']}
             />
           </PieChart>

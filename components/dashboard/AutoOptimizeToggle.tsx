@@ -1,21 +1,22 @@
 'use client'
 
 import { useState } from 'react'
-import { Zap, Settings, Check, AlertTriangle } from 'lucide-react'
+import { Zap, Settings, AlertTriangle, Check, X } from 'lucide-react'
 import { useDashboardStore } from '@/lib/store'
 
 export function AutoOptimizeToggle() {
-  const { autoOptimizeConfig, loadingAutoOptimize, toggleAutoOptimize, fetchAutoOptimize } = useDashboardStore()
+  const { autoOptimizeConfig, loadingAutoOptimize, toggleAutoOptimize } = useDashboardStore()
   const [isConfiguring, setIsConfiguring] = useState(false)
   const [savingsTarget, setSavingsTarget] = useState(autoOptimizeConfig?.maxSavingsTarget || 0.3)
   const [qualityTolerance, setQualityTolerance] = useState(autoOptimizeConfig?.qualityTolerance || 'moderate')
 
+  const isEnabled = autoOptimizeConfig?.isEnabled ?? false
+
   const handleToggle = async () => {
-    await toggleAutoOptimize(!autoOptimizeConfig?.isEnabled)
+    await toggleAutoOptimize(!isEnabled)
   }
 
   const handleSaveConfig = async () => {
-    // Save configuration
     setIsConfiguring(false)
   }
 
@@ -38,34 +39,45 @@ export function AutoOptimizeToggle() {
           <div className="flex items-center justify-between p-4 bg-[var(--surface-secondary)] rounded-lg">
             <div className="flex items-center gap-3">
               <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                autoOptimizeConfig?.isEnabled ? 'bg-[var(--success)]/10' : 'bg-[var(--surface)]'
+                isEnabled ? 'bg-[var(--accent)]/10' : 'bg-[var(--surface)] border border-[var(--border)]'
               }`}>
                 <Zap className={`w-6 h-6 ${
-                  autoOptimizeConfig?.isEnabled ? 'text-[var(--success)]' : 'text-[var(--foreground-muted)]'
+                  isEnabled ? 'text-[var(--accent)]' : 'text-[var(--foreground-muted)]'
                 }`} />
               </div>
               <div>
                 <p className="font-medium">
-                  {autoOptimizeConfig?.isEnabled ? 'Active' : 'Inactive'}
+                  {isEnabled ? 'Active' : 'Inactive'}
                 </p>
                 <p className="text-sm text-[var(--foreground-muted)]">
-                  {autoOptimizeConfig?.isEnabled
+                  {isEnabled
                     ? 'Automatically routing to cheaper models'
                     : 'Toggle to enable auto-optimization'}
                 </p>
               </div>
             </div>
+
+            {/* Toggle with icon - OFF by default (left), ON when enabled (right) */}
             <button
               onClick={handleToggle}
-              className={`relative w-14 h-8 rounded-full transition-colors ${
-                autoOptimizeConfig?.isEnabled ? 'bg-[var(--success)]' : 'bg-[var(--surface)]'
+              className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors duration-200 ${
+                isEnabled ? 'bg-[var(--accent)]' : 'bg-[var(--border)]'
               }`}
+              role="switch"
+              aria-checked={isEnabled}
             >
+              <span className="sr-only">Enable auto-optimization</span>
               <span
-                className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow transition-transform ${
-                  autoOptimizeConfig?.isEnabled ? 'translate-x-7' : 'translate-x-1'
+                className={`inline-flex h-6 w-6 items-center justify-center rounded-full bg-white shadow transform transition-transform duration-200 ${
+                  isEnabled ? 'translate-x-7' : 'translate-x-1'
                 }`}
-              />
+              >
+                {isEnabled ? (
+                  <Check className="h-4 w-4 text-[var(--accent)]" />
+                ) : (
+                  <X className="h-4 w-4 text-[var(--foreground-muted)]" />
+                )}
+              </span>
             </button>
           </div>
 
@@ -82,7 +94,7 @@ export function AutoOptimizeToggle() {
                   step="0.1"
                   value={savingsTarget}
                   onChange={(e) => setSavingsTarget(parseFloat(e.target.value))}
-                  className="w-full"
+                  className="w-full accent-[var(--accent)]"
                 />
                 <div className="flex justify-between text-xs text-[var(--foreground-muted)] mt-1">
                   <span>10%</span>

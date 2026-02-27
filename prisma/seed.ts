@@ -5,32 +5,41 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('Seeding database...')
 
-  // Create demo organization
-  const org = await prisma.organization.create({
-    data: {
+  // Create demo organization with fixed ID for demo purposes
+  const org = await prisma.organization.upsert({
+    where: { id: 'demo-org' },
+    update: {},
+    create: {
+      id: 'demo-org',
       name: 'Demo Organization',
     },
   })
-  console.log('Created organization:', org.name)
+  console.log('Created organization:', org.name, 'ID:', org.id)
 
-  // Create demo API keys
-  await prisma.apiKey.createMany({
-    data: [
-      {
-        organizationId: org.id,
-        key: 'sk-demo-openai',
-        provider: 'openai',
-        name: 'OpenAI Production',
-      },
-      {
-        organizationId: org.id,
-        key: 'sk-demo-anthropic',
-        provider: 'anthropic',
-        name: 'Anthropic Development',
-      },
-    ],
+  // Create demo API keys using upserts
+  const apiKey1 = await prisma.apiKey.upsert({
+    where: { key: 'sk-demo-openai' },
+    update: {},
+    create: {
+      organizationId: org.id,
+      key: 'sk-demo-openai',
+      provider: 'openai',
+      name: 'OpenAI Production',
+    },
   })
-  console.log('Created demo API keys')
+  console.log('Created API key:', apiKey1.name)
+
+  const apiKey2 = await prisma.apiKey.upsert({
+    where: { key: 'sk-demo-anthropic' },
+    update: {},
+    create: {
+      organizationId: org.id,
+      key: 'sk-demo-anthropic',
+      provider: 'anthropic',
+      name: 'Anthropic Development',
+    },
+  })
+  console.log('Created API key:', apiKey2.name)
 
   // Create demo requests for the past 30 days
   const models = [
@@ -108,8 +117,10 @@ async function main() {
   console.log('Created 200 demo requests')
 
   // Create auto-optimize config
-  await prisma.autoOptimizeConfig.create({
-    data: {
+  await prisma.autoOptimizeConfig.upsert({
+    where: { organizationId: org.id },
+    update: {},
+    create: {
       organizationId: org.id,
       isEnabled: false,
       maxSavingsTarget: 0.3,
