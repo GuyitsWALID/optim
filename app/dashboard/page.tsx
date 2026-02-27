@@ -1,59 +1,127 @@
+'use client'
+
+import { useEffect } from 'react'
 import Link from 'next/link'
+import { StatCard } from '@/components/dashboard/StatCard'
+import { CostChart, CostByModel, CostByProvider } from '@/components/dashboard/Charts'
+import { ApiKeysManager } from '@/components/dashboard/ApiKeysManager'
+import { AutoOptimizeToggle } from '@/components/dashboard/AutoOptimizeToggle'
+import { RecommendationsPanel } from '@/components/dashboard/RecommendationsPanel'
+import { useDashboardStore } from '@/lib/store'
+import { Calendar } from 'lucide-react'
 
 export default function DashboardPage() {
+  const {
+    period,
+    setPeriod,
+    costSummary,
+    dailyData,
+    costByModel,
+    costByProvider,
+    loadingCosts,
+    fetchCosts,
+    fetchApiKeys,
+    fetchAutoOptimize,
+    fetchRecommendations,
+  } = useDashboardStore()
+
+  useEffect(() => {
+    fetchCosts()
+    fetchApiKeys()
+    fetchAutoOptimize()
+    fetchRecommendations()
+  }, [])
+
+  const formatCurrency = (value: number) => {
+    if (value >= 1000) {
+      return `$${(value / 1000).toFixed(1)}k`
+    }
+    return `$${value.toFixed(2)}`
+  }
+
+  const formatTokens = (value: number) => {
+    if (value >= 1000000) {
+      return `${(value / 1000000).toFixed(1)}M`
+    }
+    if (value >= 1000) {
+      return `${(value / 1000).toFixed(1)}K`
+    }
+    return value.toString()
+  }
+
   return (
     <div className="space-y-6">
-      {/* Welcome banner */}
-      <div className="bento-card">
-        <h2 className="text-2xl font-display font-bold mb-2">Welcome to Optim!</h2>
-        <p className="text-[var(--foreground-secondary)] mb-4">
-          Track, analyze, and optimize your AI costs. Get started by adding your first API key.
-        </p>
-        <Link href="/dashboard/keys" className="btn-primary inline-block">
-          Add API Key
-        </Link>
+      {/* Period selector */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Calendar className="w-5 h-5 text-[var(--foreground-muted)]" />
+          <select
+            value={period}
+            onChange={(e) => setPeriod(e.target.value as 'day' | 'week' | 'month' | 'year')}
+            className="input-field"
+          >
+            <option value="day">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="year">This Year</option>
+          </select>
+        </div>
       </div>
 
       {/* Stats grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Total Spend */}
-        <div className="bento-card">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-[var(--foreground-muted)] text-sm">Total Spend</span>
-            <span className="text-2xl">💰</span>
-          </div>
-          <p className="text-3xl font-display font-bold text-[var(--accent)]">$0</p>
-          <p className="text-sm text-[var(--foreground-muted)] mt-2">This month</p>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard
+          title="Total Spend"
+          value={formatCurrency(costSummary.totalCost)}
+          subtitle="This period"
+          icon="dollar"
+        />
+        <StatCard
+          title="API Requests"
+          value={costSummary.totalRequests.toLocaleString()}
+          subtitle="This period"
+          icon="activity"
+        />
+        <StatCard
+          title="Tokens Used"
+          value={formatTokens(costSummary.totalTokens)}
+          subtitle="This period"
+          icon="zap"
+        />
+        <StatCard
+          title="Avg Cost/Request"
+          value={costSummary.totalRequests > 0
+            ? `$${(costSummary.totalCost / costSummary.totalRequests).toFixed(4)}`
+            : '$0.0000'}
+          subtitle="This period"
+          icon="clock"
+        />
+      </div>
 
-        {/* API Requests */}
-        <div className="bento-card">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-[var(--foreground-muted)] text-sm">API Requests</span>
-            <span className="text-2xl">📊</span>
-          </div>
-          <p className="text-3xl font-display font-bold">0</p>
-          <p className="text-sm text-[var(--foreground-muted)] mt-2">This month</p>
+      {/* Charts row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <CostChart data={dailyData} />
         </div>
-
-        {/* Savings */}
-        <div className="bento-card">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-[var(--foreground-muted)] text-sm">Potential Savings</span>
-            <span className="text-2xl">🎯</span>
-          </div>
-          <p className="text-3xl font-display font-bold text-[var(--success)]">$0</p>
-          <p className="text-sm text-[var(--foreground-muted)] mt-2">Available now</p>
+        <div>
+          <CostByProvider data={costByProvider} />
         </div>
       </div>
 
-      {/* Recent Activity */}
-      <div className="bento-card">
-        <h3 className="text-lg font-display font-bold mb-4">Recent Activity</h3>
-        <div className="text-center py-12 text-[var(--foreground-muted)]">
-          <p className="mb-2">No activity yet</p>
-          <p className="text-sm">Connect an API key to start tracking your AI costs</p>
+      {/* Second row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <CostByModel data={costByModel} />
         </div>
+        <div>
+          <AutoOptimizeToggle />
+        </div>
+      </div>
+
+      {/* Third row - API Keys and Recommendations */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ApiKeysManager />
+        <RecommendationsPanel />
       </div>
     </div>
   )

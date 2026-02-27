@@ -1,0 +1,241 @@
+// This is your Prisma schema file
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== Core Models ====================
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  apiKeys       ApiKey[]
+  requests      Request[]
+  dailySummaries DailySummary[]
+  budgets       Budget[]
+  autoOptimize  AutoOptimizeConfig?
+  recommendations Recommendation[]
+}
+
+model ApiKey {
+  id             String   @id @default(cuid())
+  key            String   @unique
+  provider       String   // openai, anthropic, google, azure, etc.
+  organizationId String
+  name           String?
+  lastUsedAt     DateTime?
+  createdAt      DateTime @default(now())
+
+  // Relations
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  requests       Request[]
+}
+
+model Request {
+  id             String   @id @default(cuid())
+  organizationId String
+  apiKeyId       String
+
+  // Request details
+  model          String
+  provider       String
+  endpoint       String?
+
+  // Token usage
+  promptTokens   Int
+  completionTokens Int
+  totalTokens    Int
+
+  // Cost
+  cost           Float
+
+  // Timing
+  latency        Int?      // in milliseconds
+  createdAt      DateTime @default(now())
+
+  // Metadata
+  userId         String?
+  teamId         String?
+  feature        String?
+  tags           String?   // JSON string of tags
+
+  // Response info
+  status         String?   // success, error
+  errorMessage   String?
+
+  // Relations
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  apiKey         ApiKey       @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+}
+
+model DailySummary {
+  id             String   @id @default(cuid())
+  organizationId String
+  date           DateTime @default(now())
+
+  // Aggregated metrics
+  totalRequests  Int
+  totalCost      Float
+  totalTokens    Int
+  promptTokens   Int
+  completionTokens Int
+
+  // By provider breakdown (JSON)
+  costByProvider String?  // JSON: { "openai": 10.50, "anthropic": 5.20 }
+  costByModel    String?  // JSON: { "gpt-4": 8.00, "claude-3": 7.50 }
+
+  // Latency
+  avgLatency     Float?
+  p95Latency     Float?
+  p99Latency     Float?
+
+  // Relations
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, date])
+}
+
+model Model {
+  id             String   @id @default(cuid())
+  name           String   @unique
+  provider       String
+  displayName   String?
+
+  // Pricing (per 1M tokens)
+  inputPrice    Float
+  outputPrice   Float
+
+  // Capabilities
+  contextWindow  Int?     // max tokens
+  supportsVision Boolean  @default(false)
+  supportsFunctionCalling Boolean @default(false)
+
+  // Routing
+  capabilityTier String?  // low, medium, high - for auto-routing
+  isActive      Boolean  @default(true)
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+// ==================== Budget & Alerts ====================
+
+model Budget {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  amount         Float    // monthly limit
+
+  // Alert thresholds
+  warningAt      Float    @default(0.8)  // 80%
+  criticalAt     Float    @default(0.9)  // 90%
+
+  // Current period
+  currentSpend   Float    @default(0)
+  periodStart    DateTime
+  periodEnd      DateTime
+
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+model Alert {
+  id             String   @id @default(cuid())
+  organizationId String
+  type           String   // budget_warning, budget_critical, anomaly, etc.
+  message        String
+  metadata       String?  // JSON for additional data
+  isRead         Boolean  @default(false)
+  createdAt      DateTime @default(now())
+}
+
+// ==================== Auto Optimization ====================
+
+model AutoOptimizeConfig {
+  id             String   @id @default(cuid())
+  organizationId String   @unique
+
+  // Toggle
+  isEnabled      Boolean  @default(false)
+
+  // Configuration
+  maxSavingsTarget Float  @default(0.3)  // 30% savings target
+  qualityTolerance String @default("moderate")  // strict, moderate, aggressive
+
+  // Excluded endpoints
+  excludedEndpoints String?  // JSON array of endpoint patterns
+
+  // Safety
+  alwaysUsePremiumFor String?  // JSON array of keywords (e.g., ["security", "financial"])
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+// ==================== AI Recommendations ====================
+
+model Recommendation {
+  id             String   @id @default(cuid())
+  organizationId String
+
+  type           String   // prompt_optimization, model_selection, caching, etc.
+  priority       String   // high, medium, low
+  title          String
+  description    String
+
+  // Impact
+  estimatedSavings Float?
+  implementationEffort String?  // low, medium, high
+
+  // Details
+  details        String?  // JSON with specific recommendations
+
+  isImplemented  Boolean  @default(false)
+  isDismissed    Boolean  @default(false)
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+// ==================== Caching ====================
+
+model CacheEntry {
+  id             String   @id @default(cuid())
+  organizationId String
+
+  // Cache key (hash of prompt + model)
+  cacheKey       String   @unique
+  promptHash     String
+
+  model          String
+  response       String   // cached response
+  tokenCount     Int
+
+  hitCount       Int      @default(1)
+  lastHitAt      DateTime @default(now())
+  createdAt      DateTime @default(now())
+  expiresAt      DateTime
+
+  // Relations
+  @@index([organizationId, cacheKey])
+}
