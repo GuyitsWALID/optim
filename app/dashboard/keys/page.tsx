@@ -3,18 +3,21 @@
 import { useState } from 'react'
 import { Plus, Trash2, Copy, Check, Key, RefreshCw, Shield, Clock, Activity } from 'lucide-react'
 import { useDashboardStore } from '@/lib/store'
+import { ProviderIcon, ProviderLogo } from '@/components/dashboard/ProviderIcon'
 
 const providers = [
-  { value: 'openai', label: 'OpenAI', icon: '🤖' },
-  { value: 'anthropic', label: 'Anthropic', icon: '🧠' },
-  { value: 'google', label: 'Google', icon: '🔷' },
-  { value: 'azure', label: 'Azure OpenAI', icon: '☁️' },
-  { value: 'groq', label: 'Groq', icon: '⚡' },
-  { value: 'ollama', label: 'Ollama', icon: '🦙' },
+  { value: 'openai', label: 'OpenAI' },
+  { value: 'anthropic', label: 'Anthropic' },
+  { value: 'gemini', label: 'Gemini' },
+  { value: 'deepseek', label: 'DeepSeek' },
+  { value: 'qwen', label: 'Qwen' },
+  { value: 'azure', label: 'Azure OpenAI' },
+  { value: 'groq', label: 'Groq' },
+  { value: 'ollama', label: 'Ollama' },
 ]
 
 export default function KeysPage() {
-  const { apiKeys, loadingKeys, addApiKey, deleteApiKey, fetchApiKeys } = useDashboardStore()
+  const { apiKeys, loadingKeys, addApiKey, deleteApiKey } = useDashboardStore()
   const [isAdding, setIsAdding] = useState(false)
   const [newKey, setNewKey] = useState('')
   const [newProvider, setNewProvider] = useState('openai')
@@ -39,10 +42,6 @@ export default function KeysPage() {
     navigator.clipboard.writeText(id)
     setCopied(id)
     setTimeout(() => setCopied(null), 2000)
-  }
-
-  const getProviderIcon = (provider: string) => {
-    return providers.find(p => p.value === provider)?.icon || '🔑'
   }
 
   return (
@@ -73,13 +72,13 @@ export default function KeysPage() {
                   <button
                     key={p.value}
                     onClick={() => setNewProvider(p.value)}
-                    className={`p-3 rounded-lg border-2 transition-all ${
+                    className={`p-3 rounded-lg border-2 transition-all flex flex-col items-center gap-2 ${
                       newProvider === p.value
                         ? 'border-[var(--accent)] bg-[var(--accent)]/10'
                         : 'border-[var(--border)] hover:border-[var(--foreground-muted)]'
                     }`}
                   >
-                    <span className="text-2xl mb-1 block">{p.icon}</span>
+                    <ProviderIcon provider={p.value} size={28} />
                     <span className="text-sm font-medium">{p.label}</span>
                   </button>
                 ))}
@@ -149,12 +148,12 @@ export default function KeysPage() {
             <div key={key.id} className="bento-card">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-[var(--accent)]/10 flex items-center justify-center text-2xl">
-                    {getProviderIcon(key.provider)}
+                  <div className="w-12 h-12 rounded-xl bg-[var(--surface-secondary)] flex items-center justify-center">
+                    <ProviderIcon provider={key.provider} size={32} />
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg">{key.name || 'Unnamed Key'}</h3>
-                    <p className="text-sm text-[var(--foreground-muted)] capitalize">{key.provider}</p>
+                    <p className="text-sm text-[var(--foreground-muted)]">{key.provider}</p>
                   </div>
                 </div>
 
