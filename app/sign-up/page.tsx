@@ -51,18 +51,13 @@ export default function SignUpPage() {
     setError('')
     setLoading(true)
     try {
-      const result = await getAuthClient().signUp.social({
+      // Use signIn.social for OAuth (not signUp)
+      await getAuthClient().signIn.social({
         provider,
         callbackURL: '/onboarding',
       })
-      // OAuth returns a URL to redirect to
-      if (result && result.url) {
-        window.location.href = result.url
-      } else {
-        // Fallback: try direct redirect
-        window.location.href = '/onboarding'
-      }
     } catch (err: any) {
+      console.error('OAuth error:', err)
       setError(err.message || `Failed to sign up with ${provider}`)
       setLoading(false)
     }

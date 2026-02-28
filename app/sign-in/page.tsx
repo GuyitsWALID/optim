@@ -49,18 +49,14 @@ export default function SignInPage() {
     setError('')
     setLoading(true)
     try {
-      const result = await getAuthClient().signIn.social({
+      // signIn.social should auto-redirect by default
+      await getAuthClient().signIn.social({
         provider,
         callbackURL: '/onboarding',
       })
-      // OAuth returns a URL to redirect to
-      if (result && result.url) {
-        window.location.href = result.url
-      } else {
-        // Fallback: try direct redirect
-        window.location.href = '/onboarding'
-      }
+      // If no error, the redirect should happen automatically
     } catch (err: any) {
+      console.error('OAuth error:', err)
       setError(err.message || `Failed to sign in with ${provider}`)
       setLoading(false)
     }

@@ -116,20 +116,17 @@ export default function OnboardingPage() {
     try {
       // Use auth client to check session
       const session = await getAuthClient().getSession()
+
+      // If no session, redirect to sign-in (normal for first-time users)
       if (!session) {
-        // No session, redirect to sign in
         router.push('/sign-in')
         return
       }
 
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-      const sessionToken = session.session.token
 
       // Check if onboarding is already completed
       const res = await fetch(`${baseUrl}/api/v1/user/preferences`, {
-        headers: {
-          'Authorization': `Bearer ${sessionToken}`,
-        },
         credentials: 'include',
       })
 
@@ -183,14 +180,11 @@ export default function OnboardingPage() {
 
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
-      // Use regular fetch with credentials and get session token
-      const sessionToken = session.session.token
-
+      // Use regular fetch with credentials
       const res = await fetch(`${baseUrl}/api/v1/onboarding`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${sessionToken}`,
         },
         credentials: 'include',
         body: JSON.stringify(data),
