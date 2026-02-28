@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Menu, X } from 'lucide-react'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
@@ -16,6 +16,19 @@ export function Navbar() {
   ]
 
   const closeMenu = () => setIsMenuOpen(false)
+
+  useEffect(() => {
+    if (!isMenuOpen) return
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeMenu()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isMenuOpen])
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-[var(--border)]">
@@ -58,7 +71,7 @@ export function Navbar() {
             aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={isMenuOpen}
             onClick={() => setIsMenuOpen((open) => !open)}
-            className="md:hidden inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-[var(--border)] text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:border-[var(--foreground-muted)] transition-colors"
+            className="md:hidden inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-[var(--primary)] text-[var(--primary)] hover:opacity-90 transition-colors"
           >
             {isMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
             Menu
@@ -67,30 +80,38 @@ export function Navbar() {
       </div>
 
       {isMenuOpen && (
-        <div className="md:hidden border-t border-[var(--border)] bg-[var(--background)]/95 backdrop-blur px-6 py-4">
-          <div className="flex flex-col gap-3">
-            {navItems.map((item) => (
+        <>
+          <button
+            type="button"
+            aria-label="Close menu backdrop"
+            onClick={closeMenu}
+            className="md:hidden fixed inset-0 top-16 bg-black/20 backdrop-blur-sm"
+          />
+          <div className="md:hidden relative z-10 border-t border-[var(--border)] bg-[var(--background)]/95 backdrop-blur px-6 py-4">
+            <div className="flex flex-col gap-3">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={closeMenu}
+                  className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors py-1"
+                >
+                  {item.label}
+                </Link>
+              ))}
               <Link
-                key={item.href}
-                href={item.href}
+                href="/sign-in"
                 onClick={closeMenu}
-                className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors py-1"
+                className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors font-medium py-1"
               >
-                {item.label}
+                Sign In
               </Link>
-            ))}
-            <Link
-              href="/sign-in"
-              onClick={closeMenu}
-              className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors font-medium py-1"
-            >
-              Sign In
-            </Link>
-            <Link href="/sign-up" onClick={closeMenu} className="btn-primary text-sm text-center mt-2">
-              Get Started
-            </Link>
+              <Link href="/sign-up" onClick={closeMenu} className="btn-primary text-sm text-center mt-2">
+                Get Started
+              </Link>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </nav>
   )
