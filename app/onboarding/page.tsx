@@ -2,7 +2,21 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Check, ArrowRight, ArrowLeft } from 'lucide-react'
+import { Check, ArrowRight, ArrowLeft, Building2, User } from 'lucide-react'
+import { createAuthClient } from 'better-auth/react'
+
+// Create auth client singleton
+let authClient: ReturnType<typeof createAuthClient> | null = null
+
+function getAuthClient() {
+  if (!authClient) {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    authClient = createAuthClient({
+      baseURL: `${baseUrl}/api/auth`,
+    })
+  }
+  return authClient
+}
 
 // Types
 interface OnboardingData {
@@ -44,6 +58,8 @@ const ROLE_OPTIONS = [
   { id: 'developer', label: 'Developer' },
   { id: 'product-manager', label: 'Product Manager' },
   { id: 'executive', label: 'Executive' },
+  { id: 'data-engineer', label: 'Data Engineer' },
+  { id: 'designer', label: 'Designer' },
   { id: 'data-scientist', label: 'Data Scientist' },
   { id: 'other', label: 'Other' },
 ]
@@ -67,6 +83,7 @@ const PROVIDER_OPTIONS = [
   { id: 'google', label: 'Google' },
   { id: 'azure', label: 'Azure OpenAI' },
   { id: 'aws', label: 'AWS Bedrock' },
+  { id: 'groq', label: 'Groq' },
   { id: 'other', label: 'Other' },
 ]
 
@@ -82,6 +99,7 @@ export default function OnboardingPage() {
   const router = useRouter()
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const [mounted, setMounted] = useState(false)
   const [data, setData] = useState<OnboardingData>({
     useCases: [],
@@ -96,14 +114,27 @@ export default function OnboardingPage() {
 
   const checkOnboardingStatus = async () => {
     try {
-      const res = await fetch('/api/v1/user/preferences')
-      const data = await res.json()
-      if (data.preferences) {
+      // Use auth client to check session
+      const session = await getAuthClient().getSession()
+      if (!session) {
+        // No session, redirect to sign in
+        router.push('/sign-in')
+        return
+      }
+
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+
+      // Check if onboarding is already completed using auth client fetch
+      const res = await getAuthClient().$fetch<{ preferences: unknown }>(`${baseUrl}/api/v1/user/preferences`)
+
+      if (res.data?.preferences) {
         // Already completed, redirect to dashboard
         router.push('/dashboard')
       }
     } catch (error) {
       console.error('Error checking onboarding status:', error)
+      // Redirect to sign in on error
+      router.push('/sign-in')
     }
   }
 
@@ -131,20 +162,35 @@ export default function OnboardingPage() {
 
   const handleSubmit = async () => {
     setLoading(true)
+    setError('')
     try {
-      const res = await fetch('/api/v1/onboarding', {
+      // Get session to ensure we have one
+      const session = await getAuthClient().getSession()
+
+      if (!session) {
+        setError('Session expired. Please sign in again.')
+        router.push('/sign-in')
+        return
+      }
+
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+
+      // Use authClient's built-in fetch - returns { data, error }
+      const res = await getAuthClient().$fetch(`${baseUrl}/api/v1/onboarding`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       })
 
-      if (res.ok) {
-        router.push('/dashboard')
+      // Check for error in response
+      if (res.error) {
+        console.error('Onboarding error:', res.error)
+        setError(res.error.message || 'Onboarding failed')
       } else {
-        console.error('Onboarding failed')
+        router.push('/dashboard')
       }
-    } catch (error) {
-      console.error('Error submitting onboarding:', error)
+    } catch (error: any) {
+      console.error('Onboarding catch error:', error)
+      setError(error.message || 'An unexpected error occurred')
     } finally {
       setLoading(false)
     }
@@ -253,7 +299,7 @@ export default function OnboardingPage() {
                   onClick={() => updateData({ projectType: 'company' })}
                   className="p-6 rounded-lg border border-[var(--border)] hover:border-[var(--primary)] transition-all text-left"
                 >
-                  <div className="text-2xl mb-2">🏢</div>
+                  <Building2 className="w-7 h-7 mb-3 text-[var(--primary)]" />
                   <div className="font-semibold text-lg">Company</div>
                   <div className="text-sm text-[var(--foreground-muted)]">
                     For work, business, or team projects
@@ -263,7 +309,7 @@ export default function OnboardingPage() {
                   onClick={() => updateData({ projectType: 'personal' })}
                   className="p-6 rounded-lg border border-[var(--border)] hover:border-[var(--primary)] transition-all text-left"
                 >
-                  <div className="text-2xl mb-2">👤</div>
+                  <User className="w-7 h-7 mb-3 text-[var(--primary)]" />
                   <div className="font-semibold text-lg">Personal</div>
                   <div className="text-sm text-[var(--foreground-muted)]">
                     For learning, experiments, or hobby projects
@@ -442,6 +488,13 @@ export default function OnboardingPage() {
                 ))}
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Error message */}
+        {error && (
+          <div className="mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-sm">
+            {error}
           </div>
         )}
 

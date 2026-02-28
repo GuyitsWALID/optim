@@ -4,12 +4,20 @@ import { prisma } from '@/lib/prisma'
 
 export async function POST(request: Request) {
   try {
+    // Get session - try both headers and cookie
     const session = await auth.api.getSession({
       headers: request.headers,
     })
 
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      // Try to get session from cookies
+      const cookieHeader = request.headers.get('cookie')
+      console.log('Cookies received:', cookieHeader)
+
+      return NextResponse.json(
+        { error: 'Unauthorized - Please sign in again' },
+        { status: 401 }
+      )
     }
 
     const body = await request.json()
