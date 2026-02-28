@@ -19,8 +19,8 @@ export function middleware(request: NextRequest) {
 
   // If no session and trying to access protected routes
   if (!sessionCookie) {
-    // Redirect to home if trying to access dashboard or onboarding
-    if (pathname.startsWith('/dashboard') || pathname.startsWith('/onboarding')) {
+    // Redirect to home if trying to access dashboard
+    if (pathname.startsWith('/dashboard')) {
       return NextResponse.redirect(new URL('/', request.url))
     }
     return NextResponse.next()
@@ -31,8 +31,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/onboarding', request.url))
   }
 
-  // If has session and going to onboarding, check if completed
-  // For now, we'll let them through and handle completion check on the page
+  // Note: Onboarding completion check is handled client-side
+  // because we need to query the database to check onboarding status
 
   return NextResponse.next()
 }

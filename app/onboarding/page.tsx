@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Check, ArrowRight, ArrowLeft } from 'lucide-react'
 
@@ -82,10 +82,30 @@ export default function OnboardingPage() {
   const router = useRouter()
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const [data, setData] = useState<OnboardingData>({
     useCases: [],
     projectType: null,
   })
+
+  useEffect(() => {
+    setMounted(true)
+    // Check if onboarding is already completed
+    checkOnboardingStatus()
+  }, [])
+
+  const checkOnboardingStatus = async () => {
+    try {
+      const res = await fetch('/api/v1/user/preferences')
+      const data = await res.json()
+      if (data.preferences) {
+        // Already completed, redirect to dashboard
+        router.push('/dashboard')
+      }
+    } catch (error) {
+      console.error('Error checking onboarding status:', error)
+    }
+  }
 
   const updateData = (updates: Partial<OnboardingData>) => {
     setData((prev) => ({ ...prev, ...updates }))
@@ -143,6 +163,10 @@ export default function OnboardingPage() {
       default:
         return true
     }
+  }
+
+  if (!mounted) {
+    return null
   }
 
   return (
