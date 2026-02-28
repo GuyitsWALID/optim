@@ -4,9 +4,24 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(request: Request) {
   try {
-    const session = await auth.api.getSession({
+    // Get session - try both cookie and Authorization header
+    const authHeader = request.headers.get('authorization')
+    let session = null
+
+    // First try cookie-based auth
+    session = await auth.api.getSession({
       headers: request.headers,
     })
+
+    // If no session from cookie, try Bearer token
+    if (!session?.user && authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.substring(7)
+      session = await auth.api.getSession({
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+    }
 
     if (!session?.user) {
       return NextResponse.json({ preferences: null }, { status: 200 })

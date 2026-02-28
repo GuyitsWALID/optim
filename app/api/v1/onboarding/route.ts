@@ -4,16 +4,26 @@ import { prisma } from '@/lib/prisma'
 
 export async function POST(request: Request) {
   try {
-    // Get session - try both headers and cookie
-    const session = await auth.api.getSession({
+    // Get session - try both headers (cookie) and Authorization header
+    const authHeader = request.headers.get('authorization')
+    let session = null
+
+    // First try cookie-based auth
+    session = await auth.api.getSession({
       headers: request.headers,
     })
 
-    if (!session?.user) {
-      // Try to get session from cookies
-      const cookieHeader = request.headers.get('cookie')
-      console.log('Cookies received:', cookieHeader)
+    // If no session from cookie, try Bearer token
+    if (!session?.user && authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.substring(7)
+      session = await auth.api.getSession({
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+    }
 
+    if (!session?.user) {
       return NextResponse.json(
         { error: 'Unauthorized - Please sign in again' },
         { status: 401 }

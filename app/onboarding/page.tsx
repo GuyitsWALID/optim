@@ -123,11 +123,19 @@ export default function OnboardingPage() {
       }
 
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+      const sessionToken = session.session.token
 
-      // Check if onboarding is already completed using auth client fetch
-      const res = await getAuthClient().$fetch<{ preferences: unknown }>(`${baseUrl}/api/v1/user/preferences`)
+      // Check if onboarding is already completed
+      const res = await fetch(`${baseUrl}/api/v1/user/preferences`, {
+        headers: {
+          'Authorization': `Bearer ${sessionToken}`,
+        },
+        credentials: 'include',
+      })
 
-      if (res.data?.preferences) {
+      const result = await res.json()
+
+      if (result.preferences) {
         // Already completed, redirect to dashboard
         router.push('/dashboard')
       }
@@ -175,18 +183,26 @@ export default function OnboardingPage() {
 
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
-      // Use authClient's built-in fetch - returns { data, error }
-      const res = await getAuthClient().$fetch(`${baseUrl}/api/v1/onboarding`, {
+      // Use regular fetch with credentials and get session token
+      const sessionToken = session.session.token
+
+      const res = await fetch(`${baseUrl}/api/v1/onboarding`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionToken}`,
+        },
+        credentials: 'include',
         body: JSON.stringify(data),
       })
 
-      // Check for error in response
-      if (res.error) {
-        console.error('Onboarding error:', res.error)
-        setError(res.error.message || 'Onboarding failed')
-      } else {
+      const result = await res.json()
+
+      if (res.ok) {
         router.push('/dashboard')
+      } else {
+        console.error('Onboarding error:', result)
+        setError(result.error || 'Onboarding failed')
       }
     } catch (error: any) {
       console.error('Onboarding catch error:', error)

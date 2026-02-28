@@ -49,11 +49,11 @@ export default function SignInPage() {
     setError('')
     setLoading(true)
     try {
-      const result = await getAuthClient().signIn.oauth2({
+      const result = await getAuthClient().signIn.social({
         provider,
         callbackURL: '/onboarding',
       })
-      // OAuth2 returns a URL to redirect to
+      // OAuth returns a URL to redirect to
       if (result && result.url) {
         window.location.href = result.url
       } else {
