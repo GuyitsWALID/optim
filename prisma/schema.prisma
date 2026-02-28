@@ -10,58 +10,54 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ==================== Auth ====================
+// ==================== Auth Models (Better Auth) ====================
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
+  id        String    @id @default(cuid())
+  email     String    @unique
   name      String?
   image     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Onboarding state
-  onboardingCompleted Boolean @default(false)
-  onboardingData      String? // JSON storage for answers
-
-  // Organization
-  organizationId String?
-  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-
-  // better-auth relations
   emailVerified Boolean?
-  accounts      Account[]
-  sessions      Session[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  accounts Account[]
+  sessions Session[]
+
+  // Custom fields
+  onboardingCompleted Boolean @default(false)
+  onboardingData      String?
+  organizationId     String?
+  organization        Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
 
   @@map("user")
 }
 
 model Account {
-  id                String  @id @default(cuid())
+  id                String   @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?  @db.Text
+  access_token      String?  @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?  @db.Text
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  accountId             String
-  providerId            String
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
+  accountId         String
+  providerId        String
+  accessToken       String?
+  refreshToken      String?
+  idToken          String?
   accessTokenExpiresAt  DateTime?
   refreshTokenExpiresAt DateTime?
-  password              String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+  password          String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@index([userId])
@@ -73,13 +69,14 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   expiresAt    DateTime
   token        String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   ipAddress    String?
   userAgent    String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([token])
   @@index([userId])
@@ -92,8 +89,7 @@ model Verification {
   value      String
   expiresAt  DateTime
   createdAt  DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
+  updatedAt  DateTime @updatedAt
 
   @@unique([identifier, value])
   @@index([identifier])
@@ -108,7 +104,6 @@ model Organization {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relations
   apiKeys         ApiKey[]
   requests        Request[]
   dailySummaries  DailySummary[]
@@ -121,13 +116,12 @@ model Organization {
 model ApiKey {
   id             String    @id @default(cuid())
   key            String    @unique
-  provider       String // openai, anthropic, google, azure, etc.
+  provider       String
   organizationId String
   name           String?
   lastUsedAt     DateTime?
   createdAt      DateTime  @default(now())
 
-  // Relations
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   requests     Request[]
 }
@@ -137,34 +131,27 @@ model Request {
   organizationId String
   apiKeyId       String
 
-  // Request details
   model    String
   provider String
   endpoint String?
 
-  // Token usage
   promptTokens     Int
   completionTokens Int
   totalTokens      Int
 
-  // Cost
   cost Float
 
-  // Timing
-  latency   Int? // in milliseconds
+  latency   Int?
   createdAt DateTime @default(now())
 
-  // Metadata
   userId  String?
   teamId  String?
   feature String?
-  tags    String? // JSON string of tags
+  tags    String?
 
-  // Response info
-  status       String? // success, error
+  status       String?
   errorMessage String?
 
-  // Relations
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   apiKey       ApiKey       @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
 }
@@ -174,23 +161,19 @@ model DailySummary {
   organizationId String
   date           DateTime @default(now())
 
-  // Aggregated metrics
   totalRequests    Int
   totalCost        Float
   totalTokens      Int
   promptTokens     Int
   completionTokens Int
 
-  // By provider breakdown (JSON)
-  costByProvider String? // JSON: { "openai": 10.50, "anthropic": 5.20 }
-  costByModel    String? // JSON: { "gpt-4": 8.00, "claude-3": 7.50 }
+  costByProvider String?
+  costByModel    String?
 
-  // Latency
   avgLatency Float?
   p95Latency Float?
   p99Latency Float?
 
-  // Relations
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@unique([organizationId, date])
@@ -202,36 +185,29 @@ model Model {
   provider    String
   displayName String?
 
-  // Pricing (per 1M tokens)
   inputPrice  Float
   outputPrice Float
 
-  // Capabilities
-  contextWindow           Int? // max tokens
+  contextWindow           Int?
   supportsVision          Boolean @default(false)
   supportsFunctionCalling Boolean @default(false)
 
-  // Routing
-  capabilityTier String? // low, medium, high - for auto-routing
+  capabilityTier String?
   isActive       Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-// ==================== Budget & Alerts ====================
-
 model Budget {
   id             String @id @default(cuid())
   organizationId String
   name           String
-  amount         Float // monthly limit
+  amount         Float
 
-  // Alert thresholds
-  warningAt  Float @default(0.8) // 80%
-  criticalAt Float @default(0.9) // 90%
+  warningAt  Float @default(0.8)
+  criticalAt Float @default(0.9)
 
-  // Current period
   currentSpend Float    @default(0)
   periodStart  DateTime
   periodEnd    DateTime
@@ -240,63 +216,51 @@ model Budget {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relations
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 }
 
 model Alert {
   id             String   @id @default(cuid())
   organizationId String
-  type           String // budget_warning, budget_critical, anomaly, etc.
+  type           String
   message        String
-  metadata       String? // JSON for additional data
+  metadata       String?
   isRead         Boolean  @default(false)
   createdAt      DateTime @default(now())
 }
-
-// ==================== Auto Optimization ====================
 
 model AutoOptimizeConfig {
   id             String @id @default(cuid())
   organizationId String @unique
 
-  // Toggle
   isEnabled Boolean @default(false)
 
-  // Configuration
-  maxSavingsTarget Float  @default(0.3) // 30% savings target
-  qualityTolerance String @default("moderate") // strict, moderate, aggressive
+  maxSavingsTarget Float  @default(0.3)
+  qualityTolerance String @default("moderate")
 
-  // Excluded endpoints
-  excludedEndpoints String? // JSON array of endpoint patterns
+  excludedEndpoints String?
 
-  // Safety
-  alwaysUsePremiumFor String? // JSON array of keywords (e.g., ["security", "financial"])
+  alwaysUsePremiumFor String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relations
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 }
-
-// ==================== AI Recommendations ====================
 
 model Recommendation {
   id             String @id @default(cuid())
   organizationId String
 
-  type        String // prompt_optimization, model_selection, caching, etc.
-  priority    String // high, medium, low
+  type        String
+  priority    String
   title       String
   description String
 
-  // Impact
   estimatedSavings     Float?
-  implementationEffort String? // low, medium, high
+  implementationEffort String?
 
-  // Details
-  details String? // JSON with specific recommendations
+  details String?
 
   isImplemented Boolean @default(false)
   isDismissed   Boolean @default(false)
@@ -304,22 +268,18 @@ model Recommendation {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relations
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 }
-
-// ==================== Caching ====================
 
 model CacheEntry {
   id             String @id @default(cuid())
   organizationId String
 
-  // Cache key (hash of prompt + model)
   cacheKey   String @unique
   promptHash String
 
   model      String
-  response   String // cached response
+  response   String
   tokenCount Int
 
   hitCount  Int      @default(1)
@@ -327,6 +287,5 @@ model CacheEntry {
   createdAt DateTime @default(now())
   expiresAt DateTime
 
-  // Relations
   @@index([organizationId, cacheKey])
 }
