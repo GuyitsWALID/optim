@@ -85,9 +85,9 @@ export function Navbar() {
             type="button"
             aria-label="Close menu backdrop"
             onClick={closeMenu}
-            className="md:hidden fixed inset-0 top-16 bg-black/20 backdrop-blur-sm"
+            className="md:hidden fixed inset-0 top-16 bg-black/20 backdrop-blur-md"
           />
-          <div className="md:hidden relative z-10 border-t border-[var(--border)] bg-[var(--background)]/95 backdrop-blur px-4 sm:px-6 py-4">
+          <div className="md:hidden relative z-10 border-t border-[var(--border)] bg-[var(--background)] px-4 sm:px-6 py-4">
             <div className="flex flex-col gap-3">
               {navItems.map((item) => (
                 <Link
