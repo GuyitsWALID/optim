@@ -26,23 +26,23 @@ const testimonials = [
 
 export function Testimonials() {
   return (
-    <section id="testimonials" className="py-20 md:py-32">
-      <div className="max-w-7xl mx-auto px-6">
+    <section id="testimonials" className="py-16 sm:py-20 md:py-32">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Section header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-12 sm:mb-16">
           <span className="inline-block px-4 py-1.5 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] text-sm font-medium mb-4">
             Testimonials
           </span>
-          <h2 className="text-4xl md:text-5xl font-display font-bold mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold mb-4">
             Teams love Optim
           </h2>
-          <p className="text-lg text-[var(--foreground-secondary)] max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-[var(--foreground-secondary)] max-w-2xl mx-auto">
             See what our customers have to say about saving with Optim.
           </p>
         </div>
 
         {/* Testimonial cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-8">
           {testimonials.map((testimonial, index) => (
             <div key={index} className="bento-card">
               {/* Savings badge - constructivist style */}
@@ -51,7 +51,7 @@ export function Testimonials() {
               </div>
 
               {/* Quote */}
-              <blockquote className="text-lg mb-6 leading-relaxed">
+              <blockquote className="text-base sm:text-lg mb-6 leading-relaxed">
                 "{testimonial.quote}"
               </blockquote>
 

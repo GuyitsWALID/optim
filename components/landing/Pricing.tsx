@@ -57,28 +57,28 @@ const plans = [
 
 export function Pricing() {
   return (
-    <section id="pricing" className="py-20 md:py-32 bg-[var(--surface)]">
-      <div className="max-w-7xl mx-auto px-6">
+    <section id="pricing" className="py-16 sm:py-20 md:py-32 bg-[var(--surface)]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Section header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-12 sm:mb-16">
           <span className="inline-block px-4 py-1.5 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] text-sm font-medium mb-4">
             Pricing
           </span>
-          <h2 className="text-4xl md:text-5xl font-display font-bold mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold mb-4">
             Simple, transparent pricing
           </h2>
-          <p className="text-lg text-[var(--foreground-secondary)] max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-[var(--foreground-secondary)] max-w-2xl mx-auto">
             Start free, upgrade when you're ready. No hidden fees.
           </p>
         </div>
 
         {/* Pricing cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-8 max-w-5xl mx-auto">
           {plans.map((plan, index) => (
             <div
               key={index}
               className={`
-                bento-card relative flex flex-col
+                bento-card relative flex flex-col max-w-md md:max-w-none mx-auto w-full
                 ${plan.highlighted ? 'border-[var(--accent)] border-2' : ''}
               `}
             >
@@ -101,7 +101,7 @@ export function Pricing() {
 
               {/* Price */}
               <div className="mb-6">
-                <span className="text-4xl font-display font-bold">{plan.price}</span>
+                <span className="text-3xl sm:text-4xl font-display font-bold">{plan.price}</span>
                 {plan.period && (
                   <span className="text-[var(--foreground-muted)]">{plan.period}</span>
                 )}

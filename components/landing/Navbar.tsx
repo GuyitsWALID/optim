@@ -32,7 +32,7 @@ export function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-[var(--border)]">
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <img src="/logo3.png" alt="optim logo" className='h-9 w-9' />
@@ -87,7 +87,7 @@ export function Navbar() {
             onClick={closeMenu}
             className="md:hidden fixed inset-0 top-16 bg-black/20 backdrop-blur-sm"
           />
-          <div className="md:hidden relative z-10 border-t border-[var(--border)] bg-[var(--background)]/95 backdrop-blur px-6 py-4">
+          <div className="md:hidden relative z-10 border-t border-[var(--border)] bg-[var(--background)]/95 backdrop-blur px-4 sm:px-6 py-4">
             <div className="flex flex-col gap-3">
               {navItems.map((item) => (
                 <Link

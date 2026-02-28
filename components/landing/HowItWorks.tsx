@@ -215,23 +215,23 @@ export function HowItWorks() {
   const [activeTab, setActiveTab] = useState<keyof typeof codeSnippets>('python')
 
   return (
-    <section id="how-it-works" className="py-20 md:py-32">
-      <div className="max-w-7xl mx-auto px-6">
+    <section id="how-it-works" className="py-16 sm:py-20 md:py-32">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Section header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-12 sm:mb-16">
           <span className="inline-block px-4 py-1.5 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] text-sm font-medium mb-4">
             How It Works
           </span>
-          <h2 className="text-4xl md:text-5xl font-heading font-bold mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold mb-4">
             Start saving in minutes
           </h2>
-          <p className="text-lg text-[var(--foreground-secondary)] max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-[var(--foreground-secondary)] max-w-2xl mx-auto">
             Four simple steps to dramatically reduce your AI costs.
           </p>
         </div>
 
         {/* Steps */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-8">
           {steps.map((step, index) => (
             <div key={index} className="relative">
               {/* Connector line */}
@@ -241,17 +241,17 @@ export function HowItWorks() {
 
               <div className="bento-card h-full">
                 {/* Number - constructivist style */}
-                <div className="text-6xl font-display font-bold text-[var(--accent)]/20 mb-4">
+                <div className="text-5xl sm:text-6xl font-display font-bold text-[var(--accent)]/20 mb-3 sm:mb-4">
                   {step.number}
                 </div>
 
                 {/* Title */}
-                <h3 className="text-xl font-heading font-semibold mb-3">
+                <h3 className="text-lg sm:text-xl font-heading font-semibold mb-2 sm:mb-3">
                   {step.title}
                 </h3>
 
                 {/* Description */}
-                <p className="text-[var(--foreground-secondary)]">
+                <p className="text-sm sm:text-base text-[var(--foreground-secondary)]">
                   {step.description}
                 </p>
               </div>
@@ -260,15 +260,15 @@ export function HowItWorks() {
         </div>
 
         {/* Code snippet with tabs */}
-        <div className="mt-16">
-          <div className="bento-card max-w-4xl mx-auto overflow-hidden">
+        <div className="mt-12 sm:mt-16">
+          <div className="bento-card max-w-4xl mx-auto overflow-hidden px-0 py-0">
             {/* Tabs */}
-            <div className="flex items-center gap-1 px-4 py-2 border-b border-[var(--border)] bg-[var(--surface-elevated)]">
+            <div className="flex items-center gap-1 px-3 sm:px-4 py-2 border-b border-[var(--border)] bg-[var(--surface-elevated)] overflow-x-auto">
               {(Object.keys(codeSnippets) as Array<keyof typeof codeSnippets>).map((lang) => (
                 <button
                   key={lang}
                   onClick={() => setActiveTab(lang)}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                  className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg whitespace-nowrap transition-all duration-200 ${
                     activeTab === lang
                       ? 'bg-[var(--surface)] text-[var(--foreground)] shadow-sm'
                       : 'text-[var(--foreground-muted)] hover:text-[var(--foreground)] hover:bg-[var(--surface)]/50'
@@ -286,7 +286,7 @@ export function HowItWorks() {
             </div>
 
             {/* Code content */}
-            <div className="p-6 font-mono text-sm overflow-x-auto bg-[var(--surface)]">
+            <div className="p-4 sm:p-6 font-mono text-xs sm:text-sm overflow-x-auto bg-[var(--surface)]">
               <pre>
                 {codeSnippets[activeTab].code.map((token, index) => (
                   <span

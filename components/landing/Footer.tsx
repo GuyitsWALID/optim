@@ -31,12 +31,12 @@ const footerLinks = {
 
 export function Footer() {
   return (
-    <footer className="bg-[var(--surface)] border-t border-[var(--border)] py-16">
-      <div className="max-w-7xl mx-auto px-6">
+    <footer className="bg-[var(--surface)] border-t border-[var(--border)] py-12 sm:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Main footer content */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-8 mb-12">
           {/* Brand */}
-          <div className="col-span-2">
+          <div className="sm:col-span-2">
             <Link href="/" className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 bg-[var(--accent)] rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">O</span>
@@ -95,7 +95,7 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="pt-8 border-t border-[var(--border)] flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="pt-8 border-t border-[var(--border)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <p className="text-sm text-[var(--foreground-muted)]">
             © {new Date().getFullYear()} Optim. All rights reserved.
           </p>

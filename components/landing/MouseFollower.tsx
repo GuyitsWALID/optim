@@ -12,10 +12,14 @@ const TRAIL_LENGTH = 5
 export function MouseFollower() {
   const [positionHistory, setPositionHistory] = useState<Position[]>([])
   const [mounted, setMounted] = useState(false)
+  const [enabled, setEnabled] = useState(false)
   const lastUpdateRef = useRef<number>(0)
 
   useEffect(() => {
     setMounted(true)
+    const pointerFine = window.matchMedia('(pointer: fine)').matches
+    if (!pointerFine) return
+    setEnabled(true)
 
     const handleMouseMove = (e: MouseEvent) => {
       const now = Date.now()
@@ -41,7 +45,7 @@ export function MouseFollower() {
     }
   }, [])
 
-  if (!mounted) return null
+  if (!mounted || !enabled) return null
 
   const trailPositions = Array.from({ length: TRAIL_LENGTH }, (_, i) => {
     const historyIndex = positionHistory.length - TRAIL_LENGTH + i

@@ -71,23 +71,23 @@ const features = [
 
 export function Features() {
   return (
-    <section id="features" className="py-20 md:py-32 bg-[var(--surface)]">
-      <div className="max-w-7xl mx-auto px-6">
+    <section id="features" className="py-16 sm:py-20 md:py-32 bg-[var(--surface)]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Section header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-12 sm:mb-16">
           <span className="inline-block px-4 py-1.5 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] text-sm font-medium mb-4">
             Features
           </span>
-          <h2 className="text-4xl md:text-5xl font-heading font-bold mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold mb-4">
             Everything you need to optimize
           </h2>
-          <p className="text-lg text-[var(--foreground-secondary)] max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-[var(--foreground-secondary)] max-w-2xl mx-auto">
             Powerful tools to understand, track, and reduce your AI spending.
           </p>
         </div>
 
         {/* Bento grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 sm:gap-4">
           {features.map((feature, index) => (
             <div
               key={index}
@@ -101,15 +101,15 @@ export function Features() {
               <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
 
               {/* Card */}
-              <div className="relative h-full bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 transition-all duration-300 group-hover:border-[var(--accent)]/30 group-hover:shadow-lg group-hover:shadow-[var(--accent)]/5">
+              <div className="relative h-full bg-[var(--surface)] border border-[var(--border)] rounded-xl sm:rounded-2xl p-4 sm:p-6 transition-all duration-300 group-hover:border-[var(--accent)]/30 group-hover:shadow-lg group-hover:shadow-[var(--accent)]/5">
                 {/* Icon container */}
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-[var(--accent)]/10 text-[var(--accent)] mb-5 group-hover:scale-110 transition-transform duration-300">
+                <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-[var(--accent)]/10 text-[var(--accent)] mb-4 sm:mb-5 group-hover:scale-110 transition-transform duration-300">
                   {feature.icon}
                 </div>
 
                 {/* Content */}
                 <div className="relative z-10">
-                  <h3 className="text-xl font-heading font-semibold mb-3 text-[var(--foreground)]">
+                  <h3 className="text-lg sm:text-xl font-heading font-semibold mb-2 sm:mb-3 text-[var(--foreground)]">
                     {feature.title}
                   </h3>
 

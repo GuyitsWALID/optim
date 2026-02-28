@@ -65,7 +65,7 @@ model Verification {
   id         String   @id @default(cuid())
   identifier String
   value      String
-  expires    DateTime
+  expiresAt  DateTime
   createdAt  DateTime @default(now())
 
   @@unique([identifier, value])
