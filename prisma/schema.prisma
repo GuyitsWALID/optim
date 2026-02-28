@@ -29,7 +29,7 @@ model User {
   organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
 
   // better-auth relations
-  emailVerified DateTime?
+  emailVerified Boolean?
   accounts      Account[]
   sessions      Session[]
 
