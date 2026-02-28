@@ -35,8 +35,8 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <img src="/logo3.png" alt="optim logo" className='h-9 w-9' />
-          <img src="/logo2.png" alt="Optim text" className="h-9 w-25" />
+          <img src="/logo3.png" alt="optim logo" className="h-7 w-7 sm:h-9 sm:w-9" />
+          <img src="/logo2.png" alt="Optim text" className="h-7 w-auto sm:h-9" />
         </Link>
 
         {/* Navigation Links */}
