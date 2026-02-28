@@ -10,6 +10,67 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ==================== Auth ====================
+
+model User {
+  id                String   @id @default(cuid())
+  email            String   @unique
+  name             String?
+  image            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Onboarding state
+  onboardingCompleted Boolean  @default(false)
+  onboardingData       String?  // JSON storage for answers
+
+  // Organization
+  organizationId    String?
+  organization      Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
+  // better-auth relations
+  emailVerified     DateTime?
+  accounts          Account[]
+  sessions          Session[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expires    DateTime
+  createdAt  DateTime @default(now())
+
+  @@unique([identifier, value])
+}
+
 // ==================== Core Models ====================
 
 model Organization {
@@ -25,6 +86,7 @@ model Organization {
   budgets       Budget[]
   autoOptimize  AutoOptimizeConfig?
   recommendations Recommendation[]
+  users         User[]
 }
 
 model ApiKey {

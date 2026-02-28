@@ -41,9 +41,25 @@ export interface AutoOptimizeConfig {
   excludedEndpoints?: string
 }
 
+export interface OnboardingData {
+  useCases: string[]
+  projectType: 'company' | 'personal'
+  teamSize?: string
+  industry?: string
+  role?: string
+  usageFrequency?: string
+  expertiseLevel?: string
+  currentProviders?: string[]
+  monthlySpend?: string
+}
+
 interface DashboardState {
   // Organization
   organizationId: string | null
+
+  // User preferences (from onboarding)
+  userPreferences: OnboardingData | null
+  loadingPreferences: boolean
 
   // API Keys
   apiKeys: ApiKey[]
@@ -67,6 +83,8 @@ interface DashboardState {
 
   // Actions
   setOrganizationId: (id: string) => void
+  setUserPreferences: (prefs: OnboardingData | null) => void
+  fetchUserPreferences: () => Promise<void>
   setPeriod: (period: 'day' | 'week' | 'month' | 'year') => void
   fetchApiKeys: () => Promise<void>
   fetchCosts: () => Promise<void>
@@ -80,6 +98,8 @@ interface DashboardState {
 export const useDashboardStore = create<DashboardState>((set, get) => ({
   // Initial state
   organizationId: 'demo-org', // Default for demo
+  userPreferences: null,
+  loadingPreferences: false,
   apiKeys: [],
   loadingKeys: false,
   period: 'month',
@@ -95,6 +115,25 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
 
   // Actions
   setOrganizationId: (id) => set({ organizationId: id }),
+  setUserPreferences: (prefs) => set({ userPreferences: prefs }),
+
+  fetchUserPreferences: async () => {
+    set({ loadingPreferences: true })
+    try {
+      const res = await fetch('/api/v1/user/preferences')
+      const data = await res.json()
+      if (data.preferences) {
+        set({ userPreferences: data.preferences })
+        if (data.organizationId) {
+          set({ organizationId: data.organizationId })
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user preferences:', error)
+    } finally {
+      set({ loadingPreferences: false })
+    }
+  },
 
   setPeriod: (period) => {
     set({ period })

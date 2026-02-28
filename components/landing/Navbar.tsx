@@ -33,12 +33,12 @@ export function Navbar() {
         <div className="flex items-center gap-4">
           <ThemeToggle />
           <Link
-            href="/dashboard"
+            href="/sign-in"
             className="hidden sm:block text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors font-medium"
           >
             Sign In
           </Link>
-          <Link href="/dashboard" className="btn-primary text-sm">
+          <Link href="/sign-up" className="btn-primary text-sm">
             Get Started
           </Link>
         </div>
