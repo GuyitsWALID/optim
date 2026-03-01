@@ -51,7 +51,7 @@ export default function SignInPage() {
     try {
       // signIn.social should auto-redirect by default
       // For new users, callbackURL is /onboarding
-      // For existing users, they'll be redirected to dashboard after sign-in
+      // For existing users, the onboarding page will check and redirect to dashboard
       await getAuthClient().signIn.social({
         provider,
         callbackURL: '/onboarding',
@@ -63,22 +63,6 @@ export default function SignInPage() {
       setLoading(false)
     }
   }
-
-  // Check session on page load - redirect if already signed in
-  useEffect(() => {
-    if (mounted) {
-      getAuthClient().getSession().then((session) => {
-        if (session?.user) {
-          // Check if user has completed onboarding
-          const user = session.user as any
-          if (user.onboardingCompleted) {
-            window.location.href = '/dashboard'
-          }
-          // If not completed, stay here - OAuth will redirect to /onboarding
-        }
-      })
-    }
-  }, [mounted])
 
   if (!mounted) {
     return null
