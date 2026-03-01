@@ -131,10 +131,12 @@ export default function OnboardingPage() {
       })
 
       const result = await res.json()
+      console.log('Onboarding status check:', result)
 
-      // If onboarding already completed (preferences exist), redirect to dashboard
-      if (result.preferences && result.preferences !== null) {
-        router.push('/dashboard')
+      // If onboarding already completed, redirect to dashboard
+      if (result.onboardingCompleted || (result.preferences && result.preferences !== null)) {
+        console.log('Onboarding already completed, redirecting to dashboard...')
+        window.location.href = '/dashboard'
         return
       }
 
@@ -196,7 +198,9 @@ export default function OnboardingPage() {
       const result = await res.json()
 
       if (res.ok) {
-        router.push('/dashboard')
+        console.log('Onboarding successful, redirecting to dashboard...')
+        // Use window.location for a hard redirect to ensure it works
+        window.location.href = '/dashboard'
       } else {
         console.error('Onboarding error:', result)
         setError(result.error || 'Onboarding failed')

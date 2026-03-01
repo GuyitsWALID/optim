@@ -27,10 +27,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // If has session, redirect away from auth pages to dashboard
-  // The dashboard will handle checking onboarding status
+  // If has session, redirect away from auth pages to onboarding
+  // The onboarding page will check if already completed and redirect to dashboard
   if (pathname === '/sign-in' || pathname === '/sign-up') {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    return NextResponse.redirect(new URL('/onboarding', request.url))
   }
 
   return NextResponse.next()

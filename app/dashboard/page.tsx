@@ -50,13 +50,16 @@ export default function DashboardPage() {
       try {
         const res = await fetch('/api/v1/user/preferences')
         const data = await res.json()
+        console.log('Onboarding check response:', data)
 
         // If onboarding not completed, redirect to onboarding
         if (!data.onboardingCompleted && !data.preferences) {
+          console.log('Onboarding not completed, redirecting...')
           window.location.href = '/onboarding'
           return
         }
 
+        console.log('Onboarding completed, loading dashboard...')
         // If completed, fetch the dashboard data
         fetchUserPreferences().then(() => {
           fetchCosts()
