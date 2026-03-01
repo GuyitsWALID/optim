@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { StatCard } from '@/components/dashboard/StatCard'
 import { CostChart, CostByModel, CostByProvider } from '@/components/dashboard/Charts'
@@ -9,8 +9,23 @@ import { AutoOptimizeToggle } from '@/components/dashboard/AutoOptimizeToggle'
 import { RecommendationsPanel } from '@/components/dashboard/RecommendationsPanel'
 import { useDashboardStore } from '@/lib/store'
 import { Calendar } from 'lucide-react'
+import { createAuthClient } from 'better-auth/react'
+
+// Auth client singleton
+let authClient: ReturnType<typeof createAuthClient> | null = null
+
+function getAuthClient() {
+  if (!authClient) {
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    authClient = createAuthClient({
+      baseURL: `${baseUrl}/api/auth`,
+    })
+  }
+  return authClient
+}
 
 export default function DashboardPage() {
+  const [mounted, setMounted] = useState(false)
   const {
     period,
     setPeriod,
@@ -28,12 +43,33 @@ export default function DashboardPage() {
   } = useDashboardStore()
 
   useEffect(() => {
-    fetchUserPreferences().then(() => {
-      fetchCosts()
-      fetchApiKeys()
-      fetchAutoOptimize()
-      fetchRecommendations()
-    })
+    setMounted(true)
+
+    // Check if user has completed onboarding
+    const checkOnboarding = async () => {
+      try {
+        const res = await fetch('/api/v1/user/preferences')
+        const data = await res.json()
+
+        // If onboarding not completed, redirect to onboarding
+        if (!data.onboardingCompleted && !data.preferences) {
+          window.location.href = '/onboarding'
+          return
+        }
+
+        // If completed, fetch the dashboard data
+        fetchUserPreferences().then(() => {
+          fetchCosts()
+          fetchApiKeys()
+          fetchAutoOptimize()
+          fetchRecommendations()
+        })
+      } catch (error) {
+        console.error('Error checking onboarding:', error)
+      }
+    }
+
+    checkOnboarding()
   }, [])
 
   // Determine UI complexity based on expertise level
@@ -83,6 +119,10 @@ export default function DashboardPage() {
   }
 
   const welcome = getWelcomeMessage()
+
+  if (!mounted) {
+    return null
+  }
 
   return (
     <div className="space-y-6">

@@ -132,13 +132,16 @@ export default function OnboardingPage() {
 
       const result = await res.json()
 
-      if (result.preferences) {
-        // Already completed, redirect to dashboard
+      // If onboarding already completed (preferences exist), redirect to dashboard
+      if (result.preferences && result.preferences !== null) {
         router.push('/dashboard')
+        return
       }
+
+      // If no preferences, user needs to complete onboarding - stay on page
     } catch (error) {
       console.error('Error checking onboarding status:', error)
-      // Redirect to sign in on error
+      // On error, redirect to sign in
       router.push('/sign-in')
     }
   }

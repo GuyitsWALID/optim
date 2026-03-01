@@ -122,7 +122,8 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     try {
       const res = await fetch('/api/v1/user/preferences')
       const data = await res.json()
-      if (data.preferences) {
+      // Check both preferences and onboardingCompleted flag
+      if (data.preferences || data.onboardingCompleted) {
         set({ userPreferences: data.preferences })
         if (data.organizationId) {
           set({ organizationId: data.organizationId })

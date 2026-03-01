@@ -24,7 +24,7 @@ export async function GET(request: Request) {
     }
 
     if (!session?.user) {
-      return NextResponse.json({ preferences: null }, { status: 200 })
+      return NextResponse.json({ preferences: null, onboardingCompleted: false }, { status: 200 })
     }
 
     const user = await prisma.user.findUnique({
@@ -32,7 +32,7 @@ export async function GET(request: Request) {
     })
 
     if (!user || !user.onboardingCompleted) {
-      return NextResponse.json({ preferences: null }, { status: 200 })
+      return NextResponse.json({ preferences: null, onboardingCompleted: false }, { status: 200 })
     }
 
     const preferences = user.onboardingData ? JSON.parse(user.onboardingData) : null
@@ -40,6 +40,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       preferences,
       organizationId: user.organizationId,
+      onboardingCompleted: true,
     })
   } catch (error) {
     console.error('Error fetching user preferences:', error)

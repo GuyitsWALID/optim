@@ -8,6 +8,7 @@ export function middleware(request: NextRequest) {
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api/auth') ||
+    pathname.startsWith('/api/v1') ||
     pathname.startsWith('/static') ||
     pathname.includes('.')
   ) {
@@ -26,13 +27,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // If has session, redirect away from auth pages
+  // If has session, redirect away from auth pages to dashboard
+  // The dashboard will handle checking onboarding status
   if (pathname === '/sign-in' || pathname === '/sign-up') {
-    return NextResponse.redirect(new URL('/onboarding', request.url))
+    return NextResponse.redirect(new URL('/dashboard', request.url))
   }
-
-  // Note: Onboarding completion check is handled client-side
-  // because we need to query the database to check onboarding status
 
   return NextResponse.next()
 }
