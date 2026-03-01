@@ -46,8 +46,8 @@ model Account {
   scope                 String?
   id_token              String?   @db.Text
   session_state         String?
-  accountId             String
-  providerId            String
+  accountId             String?
+  providerId            String?
   accessToken           String?
   refreshToken          String?
   idToken               String?
