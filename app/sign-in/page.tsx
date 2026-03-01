@@ -37,7 +37,7 @@ export default function SignInPage() {
         email,
         password,
       })
-      window.location.href = '/onboarding'
+      window.location.href = '/dashboard'
     } catch (err: any) {
       setError(err.message || 'Failed to sign in')
     } finally {
@@ -54,7 +54,7 @@ export default function SignInPage() {
       // For existing users, the onboarding page will check and redirect to dashboard
       await getAuthClient().signIn.social({
         provider,
-        callbackURL: '/onboarding',
+        callbackURL: '/dashboard',
       })
       // If no error, the redirect should happen automatically
     } catch (err: any) {
