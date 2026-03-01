@@ -69,7 +69,7 @@ model Session {
   id           String   @id @default(cuid())
   sessionToken String?
   userId       String
-  expires      DateTime
+  expires      DateTime?
   expiresAt    DateTime
   token        String
   createdAt    DateTime @default(now())
