@@ -123,7 +123,7 @@ export default function OnboardingPage() {
         return
       }
 
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+      const baseUrl = window.location.origin
 
       // Check if onboarding is already completed
       const res = await fetch(`${baseUrl}/api/v1/user/preferences`, {
@@ -178,7 +178,7 @@ export default function OnboardingPage() {
         return
       }
 
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+      const baseUrl = window.location.origin
 
       // Use regular fetch with credentials
       const res = await fetch(`${baseUrl}/api/v1/onboarding`, {

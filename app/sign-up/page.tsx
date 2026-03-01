@@ -8,7 +8,7 @@ let authClient: ReturnType<typeof createAuthClient> | null = null
 
 function getAuthClient() {
   if (!authClient) {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
     authClient = createAuthClient({
       baseURL: `${baseUrl}/api/auth`,
     })
