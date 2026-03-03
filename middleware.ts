@@ -15,8 +15,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Check for session cookie
-  const sessionCookie = request.cookies.get('better-auth.session_token')
+  // Check for Better Auth session cookie (local + secure production variants)
+  const sessionCookie =
+    request.cookies.get('better-auth.session_token') ||
+    request.cookies.get('__Secure-better-auth.session_token') ||
+    request.cookies.get('__Host-better-auth.session_token')
 
   // If no session and trying to access protected routes
   if (!sessionCookie) {
