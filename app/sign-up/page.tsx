@@ -34,15 +34,19 @@ export default function SignUpPage() {
     setLoading(true)
 
     try {
-      await getAuthClient().signUp.email({
+      const result = await getAuthClient().signUp.email({
         email,
         password,
         name,
       })
+      if (result.error) {
+        setError(result.error.message || 'Failed to sign up')
+        setLoading(false)
+        return
+      }
       window.location.href = '/onboarding'
     } catch (err: any) {
       setError(err.message || 'Failed to sign up')
-    } finally {
       setLoading(false)
     }
   }
@@ -51,11 +55,14 @@ export default function SignUpPage() {
     setError('')
     setLoading(true)
     try {
-      // Use signIn.social for OAuth (not signUp)
-      await getAuthClient().signIn.social({
+      const result = await getAuthClient().signIn.social({
         provider,
-        callbackURL: '/onboarding',
+        callbackURL: '/dashboard',
       })
+      if (result.error) {
+        setError(result.error.message || `Failed to sign up with ${provider}`)
+        setLoading(false)
+      }
     } catch (err: any) {
       console.error('OAuth error:', err)
       setError(err.message || `Failed to sign up with ${provider}`)

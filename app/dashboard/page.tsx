@@ -9,23 +9,11 @@ import { AutoOptimizeToggle } from '@/components/dashboard/AutoOptimizeToggle'
 import { RecommendationsPanel } from '@/components/dashboard/RecommendationsPanel'
 import { useDashboardStore } from '@/lib/store'
 import { Calendar } from 'lucide-react'
-import { createAuthClient } from 'better-auth/react'
-
-// Auth client singleton
-let authClient: ReturnType<typeof createAuthClient> | null = null
-
-function getAuthClient() {
-  if (!authClient) {
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    authClient = createAuthClient({
-      baseURL: `${baseUrl}/api/auth`,
-    })
-  }
-  return authClient
-}
+import { useSession } from '@/lib/useSession'
 
 export default function DashboardPage() {
   const [mounted, setMounted] = useState(false)
+  const { user } = useSession()
   const {
     period,
     setPeriod,
@@ -103,20 +91,23 @@ export default function DashboardPage() {
 
   // Personalized welcome message
   const getWelcomeMessage = () => {
+    const firstName = user?.name?.split(' ')[0] || ''
+    const greeting = firstName ? `Welcome back, ${firstName}` : 'Welcome back'
+
     if (isPersonal) {
       return {
-        title: 'Your Personal Dashboard',
+        title: greeting,
         subtitle: 'Track your LLM usage and costs'
       }
     }
     if (showCostOptimization) {
       return {
-        title: 'Cost Optimization Dashboard',
+        title: greeting,
         subtitle: 'Monitor and reduce your AI spending'
       }
     }
     return {
-      title: 'Dashboard Overview',
+      title: greeting,
       subtitle: 'Your AI spending at a glance'
     }
   }

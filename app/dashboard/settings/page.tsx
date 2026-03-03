@@ -1,10 +1,69 @@
 'use client'
 
-import { useState } from 'react'
-import { User, Bell, Shield, Palette, Key, Globe, Save, Trash2 } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { User, Bell, Shield, Palette, Key, Globe, Save, Trash2, Loader2 } from 'lucide-react'
+import { useSession } from '@/lib/useSession'
+import { useDashboardStore } from '@/lib/store'
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('profile')
+  const { user, loading: sessionLoading } = useSession()
+  const { userPreferences } = useDashboardStore()
+
+  // Profile form state - populated from real user data
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [email, setEmail] = useState('')
+  const [company, setCompany] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [saveMessage, setSaveMessage] = useState('')
+
+  // Populate form when user data loads
+  useEffect(() => {
+    if (user) {
+      const nameParts = (user.name || '').split(' ')
+      setFirstName(nameParts[0] || '')
+      setLastName(nameParts.slice(1).join(' ') || '')
+      setEmail(user.email || '')
+    }
+    if (userPreferences?.industry) {
+      setCompany(userPreferences.industry)
+    }
+  }, [user, userPreferences])
+
+  function getInitials(name: string): string {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2)
+  }
+
+  const initials = user?.name ? getInitials(user.name) : '?'
+
+  const handleSaveProfile = async () => {
+    setSaving(true)
+    setSaveMessage('')
+    try {
+      const res = await fetch('/api/v1/user/preferences', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ firstName, lastName, email, company }),
+      })
+      if (res.ok) {
+        setSaveMessage('Profile saved successfully')
+      } else {
+        setSaveMessage('Failed to save profile')
+      }
+    } catch {
+      setSaveMessage('Failed to save profile')
+    } finally {
+      setSaving(false)
+      setTimeout(() => setSaveMessage(''), 3000)
+    }
+  }
 
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
@@ -45,42 +104,129 @@ export default function SettingsPage() {
           {activeTab === 'profile' && (
             <div className="bento-card">
               <h2 className="text-xl font-bold mb-6">Profile Settings</h2>
+              {sessionLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-6 h-6 animate-spin text-[var(--foreground-muted)]" />
+                </div>
+              ) : (
               <div className="space-y-6">
                 <div className="flex items-center gap-6">
-                  <div className="w-20 h-20 rounded-full bg-[var(--accent)] flex items-center justify-center">
-                    <span className="text-white text-2xl font-bold">W</span>
-                  </div>
+                  {user?.image ? (
+                    <img src={user.image} alt={user.name || 'User'} className="w-20 h-20 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-20 h-20 rounded-full bg-[var(--accent)] flex items-center justify-center">
+                      <span className="text-white text-2xl font-bold">{initials}</span>
+                    </div>
+                  )}
                   <div>
-                    <button className="btn-secondary text-sm">Change Avatar</button>
+                    <p className="font-medium text-lg">{user?.name || 'User'}</p>
+                    <p className="text-sm text-[var(--foreground-muted)]">{user?.email || ''}</p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">First Name</label>
-                    <input type="text" defaultValue="Walid" className="input-field w-full" />
+                    <input
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      className="input-field w-full"
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">Last Name</label>
-                    <input type="text" defaultValue="" className="input-field w-full" />
+                    <input
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      className="input-field w-full"
+                    />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2">Email</label>
-                  <input type="email" defaultValue="walid@example.com" className="input-field w-full" />
+                  <input
+                    type="email"
+                    value={email}
+                    disabled
+                    className="input-field w-full opacity-60 cursor-not-allowed"
+                  />
+                  <p className="text-xs text-[var(--foreground-muted)] mt-1">Email cannot be changed</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">Company</label>
-                  <input type="text" placeholder="Your company name" className="input-field w-full" />
+                  <label className="block text-sm font-medium mb-2">Company / Industry</label>
+                  <input
+                    type="text"
+                    value={company}
+                    onChange={(e) => setCompany(e.target.value)}
+                    placeholder="Your company name"
+                    className="input-field w-full"
+                  />
                 </div>
 
-                <button className="btn-primary flex items-center gap-2">
-                  <Save className="w-5 h-5" />
-                  Save Changes
+                {userPreferences && (
+                  <div className="pt-4 border-t border-[var(--border)]">
+                    <h3 className="font-medium mb-3">Onboarding Info</h3>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      {userPreferences.projectType && (
+                        <div>
+                          <p className="text-[var(--foreground-muted)]">Project Type</p>
+                          <p className="font-medium capitalize">{userPreferences.projectType}</p>
+                        </div>
+                      )}
+                      {userPreferences.role && (
+                        <div>
+                          <p className="text-[var(--foreground-muted)]">Role</p>
+                          <p className="font-medium capitalize">{userPreferences.role.replace('-', ' ')}</p>
+                        </div>
+                      )}
+                      {userPreferences.expertiseLevel && (
+                        <div>
+                          <p className="text-[var(--foreground-muted)]">Expertise</p>
+                          <p className="font-medium capitalize">{userPreferences.expertiseLevel}</p>
+                        </div>
+                      )}
+                      {userPreferences.teamSize && (
+                        <div>
+                          <p className="text-[var(--foreground-muted)]">Team Size</p>
+                          <p className="font-medium">{userPreferences.teamSize}</p>
+                        </div>
+                      )}
+                      {userPreferences.monthlySpend && (
+                        <div>
+                          <p className="text-[var(--foreground-muted)]">Monthly Spend</p>
+                          <p className="font-medium">{userPreferences.monthlySpend}</p>
+                        </div>
+                      )}
+                      {userPreferences.useCases && userPreferences.useCases.length > 0 && (
+                        <div className="col-span-2">
+                          <p className="text-[var(--foreground-muted)]">Use Cases</p>
+                          <p className="font-medium">{userPreferences.useCases.map(uc => uc.replace(/-/g, ' ')).join(', ')}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {saveMessage && (
+                  <p className={`text-sm ${saveMessage.includes('success') ? 'text-green-500' : 'text-red-500'}`}>
+                    {saveMessage}
+                  </p>
+                )}
+
+                <button
+                  onClick={handleSaveProfile}
+                  disabled={saving}
+                  className="btn-primary flex items-center gap-2"
+                >
+                  {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                  {saving ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
+              )}
             </div>
           )}
 

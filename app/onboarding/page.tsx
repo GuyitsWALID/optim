@@ -115,18 +115,16 @@ export default function OnboardingPage() {
   const checkOnboardingStatus = async () => {
     try {
       // Use auth client to check session
-      const session = await getAuthClient().getSession()
+      const sessionResult = await getAuthClient().getSession()
 
-      // If no session, redirect to sign-in (normal for first-time users)
-      if (!session) {
-        router.push('/sign-in')
+      // If no session, redirect to sign-in
+      if (!sessionResult.data) {
+        window.location.href = '/sign-in'
         return
       }
 
-      const baseUrl = window.location.origin
-
       // Check if onboarding is already completed
-      const res = await fetch(`${baseUrl}/api/v1/user/preferences`, {
+      const res = await fetch('/api/v1/user/preferences', {
         credentials: 'include',
       })
 
@@ -144,7 +142,7 @@ export default function OnboardingPage() {
     } catch (error) {
       console.error('Error checking onboarding status:', error)
       // On error, redirect to sign in
-      router.push('/sign-in')
+      window.location.href = '/sign-in'
     }
   }
 
@@ -175,18 +173,16 @@ export default function OnboardingPage() {
     setError('')
     try {
       // Get session to ensure we have one
-      const session = await getAuthClient().getSession()
+      const sessionResult = await getAuthClient().getSession()
 
-      if (!session) {
+      if (!sessionResult.data) {
         setError('Session expired. Please sign in again.')
-        router.push('/sign-in')
+        window.location.href = '/sign-in'
         return
       }
 
-      const baseUrl = window.location.origin
-
       // Use regular fetch with credentials
-      const res = await fetch(`${baseUrl}/api/v1/onboarding`, {
+      const res = await fetch('/api/v1/onboarding', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

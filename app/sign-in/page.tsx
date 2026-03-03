@@ -33,14 +33,18 @@ export default function SignInPage() {
     setLoading(true)
 
     try {
-      await getAuthClient().signIn.email({
+      const result = await getAuthClient().signIn.email({
         email,
         password,
       })
+      if (result.error) {
+        setError(result.error.message || 'Failed to sign in')
+        setLoading(false)
+        return
+      }
       window.location.href = '/dashboard'
     } catch (err: any) {
       setError(err.message || 'Failed to sign in')
-    } finally {
       setLoading(false)
     }
   }
@@ -49,14 +53,15 @@ export default function SignInPage() {
     setError('')
     setLoading(true)
     try {
-      // signIn.social should auto-redirect by default
-      // For new users, callbackURL is /onboarding
-      // For existing users, the onboarding page will check and redirect to dashboard
-      await getAuthClient().signIn.social({
+      const result = await getAuthClient().signIn.social({
         provider,
         callbackURL: '/dashboard',
       })
-      // If no error, the redirect should happen automatically
+      if (result.error) {
+        setError(result.error.message || `Failed to sign in with ${provider}`)
+        setLoading(false)
+      }
+      // If no error, the browser redirect happens automatically
     } catch (err: any) {
       console.error('OAuth error:', err)
       setError(err.message || `Failed to sign in with ${provider}`)
