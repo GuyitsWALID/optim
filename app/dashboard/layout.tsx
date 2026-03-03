@@ -8,7 +8,6 @@ import { useSession } from '@/lib/useSession'
 import {
   LayoutDashboard,
   FolderKanban,
-  Key,
   Lightbulb,
   TrendingUp,
   Settings,
@@ -19,7 +18,6 @@ import {
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/dashboard/projects', label: 'Projects', icon: FolderKanban },
-  { href: '/dashboard/keys', label: 'API Keys', icon: Key },
   { href: '/dashboard/recommendations', label: 'Recommendations', icon: Lightbulb },
   { href: '/dashboard/benchmarks', label: 'Benchmarks', icon: TrendingUp },
 ]
@@ -27,7 +25,6 @@ const navItems = [
 const pageTitles: Record<string, string> = {
   '/dashboard': 'Dashboard',
   '/dashboard/projects': 'Projects',
-  '/dashboard/keys': 'API Keys',
   '/dashboard/recommendations': 'Recommendations',
   '/dashboard/benchmarks': 'Benchmarks',
   '/dashboard/settings': 'Settings',

@@ -4,11 +4,9 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { StatCard } from '@/components/dashboard/StatCard'
 import { CostChart, CostByModel, CostByProvider } from '@/components/dashboard/Charts'
-import { ApiKeysManager } from '@/components/dashboard/ApiKeysManager'
-import { AutoOptimizeToggle } from '@/components/dashboard/AutoOptimizeToggle'
 import { RecommendationsPanel } from '@/components/dashboard/RecommendationsPanel'
 import { useDashboardStore } from '@/lib/store'
-import { Calendar } from 'lucide-react'
+import { Calendar, FolderKanban, ArrowRight } from 'lucide-react'
 import { useSession } from '@/lib/useSession'
 
 export default function DashboardPage() {
@@ -23,8 +21,8 @@ export default function DashboardPage() {
     costByProvider,
     loadingCosts,
     fetchCosts,
-    fetchApiKeys,
-    fetchAutoOptimize,
+    fetchProjects,
+    projects,
     fetchRecommendations,
     fetchUserPreferences,
     userPreferences,
@@ -33,26 +31,19 @@ export default function DashboardPage() {
   useEffect(() => {
     setMounted(true)
 
-    // Check if user has completed onboarding
     const checkOnboarding = async () => {
       try {
         const res = await fetch('/api/v1/user/preferences')
         const data = await res.json()
-        console.log('Onboarding check response:', data)
 
-        // If onboarding not completed, redirect to onboarding
         if (!data.onboardingCompleted && !data.preferences) {
-          console.log('Onboarding not completed, redirecting...')
           window.location.href = '/onboarding'
           return
         }
 
-        console.log('Onboarding completed, loading dashboard...')
-        // If completed, fetch the dashboard data
         fetchUserPreferences().then(() => {
           fetchCosts()
-          fetchApiKeys()
-          fetchAutoOptimize()
+          fetchProjects()
           fetchRecommendations()
         })
       } catch (error) {
@@ -63,60 +54,36 @@ export default function DashboardPage() {
     checkOnboarding()
   }, [])
 
-  // Determine UI complexity based on expertise level
-  const isAdvanced = userPreferences?.expertiseLevel === 'advanced'
-  const isBeginner = userPreferences?.expertiseLevel === 'beginner'
   const isPersonal = userPreferences?.projectType === 'personal'
-
-  // Reorder panels based on use cases
   const showCostOptimization = userPreferences?.useCases?.includes('cost-optimization')
-  const showBenchmarking = userPreferences?.useCases?.includes('benchmarking')
 
   const formatCurrency = (value: number) => {
-    if (value >= 1000) {
-      return `$${(value / 1000).toFixed(1)}k`
-    }
+    if (value >= 1000) return `$${(value / 1000).toFixed(1)}k`
     return `$${value.toFixed(2)}`
   }
 
   const formatTokens = (value: number) => {
-    if (value >= 1000000) {
-      return `${(value / 1000000).toFixed(1)}M`
-    }
-    if (value >= 1000) {
-      return `${(value / 1000).toFixed(1)}K`
-    }
+    if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`
+    if (value >= 1000) return `${(value / 1000).toFixed(1)}K`
     return value.toString()
   }
 
-  // Personalized welcome message
   const getWelcomeMessage = () => {
     const firstName = user?.name?.split(' ')[0] || ''
     const greeting = firstName ? `Welcome back, ${firstName}` : 'Welcome back'
 
     if (isPersonal) {
-      return {
-        title: greeting,
-        subtitle: 'Track your LLM usage and costs'
-      }
+      return { title: greeting, subtitle: 'Track your LLM usage and costs' }
     }
     if (showCostOptimization) {
-      return {
-        title: greeting,
-        subtitle: 'Monitor and reduce your AI spending'
-      }
+      return { title: greeting, subtitle: 'Monitor and reduce your AI spending' }
     }
-    return {
-      title: greeting,
-      subtitle: 'Your AI spending at a glance'
-    }
+    return { title: greeting, subtitle: 'Your AI spending at a glance' }
   }
 
   const welcome = getWelcomeMessage()
 
-  if (!mounted) {
-    return null
-  }
+  if (!mounted) return null
 
   return (
     <div className="space-y-6">
@@ -164,11 +131,9 @@ export default function DashboardPage() {
           icon="zap"
         />
         <StatCard
-          title="Avg Cost/Request"
-          value={costSummary.totalRequests > 0
-            ? `$${(costSummary.totalCost / costSummary.totalRequests).toFixed(4)}`
-            : '$0.0000'}
-          subtitle="This period"
+          title="Active Projects"
+          value={projects.length.toString()}
+          subtitle="With SDK integration"
           icon="clock"
         />
       </div>
@@ -189,15 +154,42 @@ export default function DashboardPage() {
           <CostByModel data={costByModel} />
         </div>
         <div>
-          <AutoOptimizeToggle />
+          <RecommendationsPanel />
         </div>
       </div>
 
-      {/* Third row - API Keys and Recommendations */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ApiKeysManager />
-        <RecommendationsPanel />
-      </div>
+      {/* Projects summary */}
+      {projects.length > 0 && (
+        <div className="bento-card">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-display font-bold">Projects</h3>
+            <Link
+              href="/dashboard/projects"
+              className="text-sm text-[var(--accent)] hover:underline flex items-center gap-1"
+            >
+              View all <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {projects.slice(0, 3).map((project) => (
+              <Link
+                key={project.id}
+                href={`/dashboard/projects/${project.id}`}
+                className="p-4 rounded-xl border border-[var(--border)] hover:border-[var(--accent)]/50 transition-all"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <FolderKanban className="w-5 h-5 text-[var(--accent)]" />
+                  <span className="font-medium">{project.name}</span>
+                </div>
+                <div className="flex items-center gap-4 text-sm text-[var(--foreground-muted)]">
+                  <span>{project.totalRequests.toLocaleString()} requests</span>
+                  <span className="text-[var(--accent)]">{formatCurrency(project.totalCost30d)}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -16,11 +16,13 @@ export function ProviderIcon({ provider, size = 24, className }: ProviderIconPro
     openai: <OpenAI size={size} className={className} />,
     anthropic: <Anthropic size={size} className={className} />,
     gemini: <Gemini size={size} className={className} />,
+    google: <Gemini size={size} className={className} />,
     deepseek: <DeepSeek size={size} className={className} />,
     qwen: <Qwen size={size} className={className} />,
     groq: <Groq size={size} className={className} />,
     ollama: <Ollama size={size} className={className} />,
     azure: <AzureAI size={size} className={className} />,
+    bedrock: <AzureAI size={size} className={className} />,
     grok: <Grok size={size} className={className} />,
   }
 

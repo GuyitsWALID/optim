@@ -1,19 +1,27 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Zap, Settings, AlertTriangle, Check, X } from 'lucide-react'
 import { useDashboardStore } from '@/lib/store'
 
-export function AutoOptimizeToggle() {
-  const { autoOptimizeConfig, loadingAutoOptimize, toggleAutoOptimize } = useDashboardStore()
+export function AutoOptimizeToggle({ projectId }: { projectId?: string }) {
+  const { autoOptimizeConfig, loadingAutoOptimize, toggleAutoOptimize, fetchAutoOptimize } = useDashboardStore()
   const [isConfiguring, setIsConfiguring] = useState(false)
   const [savingsTarget, setSavingsTarget] = useState(autoOptimizeConfig?.maxSavingsTarget || 0.3)
   const [qualityTolerance, setQualityTolerance] = useState(autoOptimizeConfig?.qualityTolerance || 'moderate')
 
+  useEffect(() => {
+    if (projectId) {
+      fetchAutoOptimize(projectId)
+    }
+  }, [projectId, fetchAutoOptimize])
+
   const isEnabled = autoOptimizeConfig?.isEnabled ?? false
 
   const handleToggle = async () => {
-    await toggleAutoOptimize(!isEnabled)
+    if (projectId) {
+      await toggleAutoOptimize(projectId, !isEnabled)
+    }
   }
 
   const handleSaveConfig = async () => {

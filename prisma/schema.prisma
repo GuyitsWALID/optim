@@ -105,32 +105,37 @@ model Organization {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  apiKeys         ApiKey[]
-  requests        Request[]
-  dailySummaries  DailySummary[]
-  budgets         Budget[]
-  autoOptimize    AutoOptimizeConfig?
-  recommendations Recommendation[]
-  users           User[]
+  projects Project[]
+  budgets  Budget[]
+  users    User[]
 }
 
-model ApiKey {
-  id             String    @id @default(cuid())
-  key            String    @unique
-  provider       String
-  organizationId String
-  name           String?
-  lastUsedAt     DateTime?
-  createdAt      DateTime  @default(now())
+model Project {
+  id              String    @id @default(cuid())
+  name            String
+  description     String?
+  projectKey      String    @unique // opt_proj_xxxxxxxxxxxx
+  providers       String    // JSON array: ["openai", "anthropic"]
+  models          String    // JSON array: ["gpt-4o", "claude-sonnet-4-20250514"]
+  sdkPlatform     String    // "nodejs" | "python" | "rest"
+  organizationId  String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  lastActivityAt  DateTime?
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  requests     Request[]
+  organization    Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  requests        Request[]
+  dailySummaries  DailySummary[]
+  autoOptimize    AutoOptimizeConfig?
+  recommendations Recommendation[]
+
+  @@index([organizationId])
+  @@index([projectKey])
 }
 
 model Request {
-  id             String @id @default(cuid())
-  organizationId String
-  apiKeyId       String
+  id        String @id @default(cuid())
+  projectId String
 
   model    String
   provider String
@@ -142,25 +147,33 @@ model Request {
 
   cost Float
 
-  latency   Int?
+  latencyMs     Int?
+  isStreaming    Boolean  @default(false)
+  originalModel String?  // If auto-optimized, the model originally requested
+
   createdAt DateTime @default(now())
 
   userId  String?
-  teamId  String?
   feature String?
   tags    String?
 
-  status       String?
-  errorMessage String?
+  status       String  @default("success")
+  errorType    String?
+  statusCode   Int?
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  apiKey       ApiKey       @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+  sdkVersion String?
+  runtime    String?  // "node" | "python" | "edge" | "rest"
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([projectId, createdAt])
 }
 
 model DailySummary {
-  id             String   @id @default(cuid())
-  organizationId String
-  date           DateTime @default(now())
+  id        String   @id @default(cuid())
+  projectId String
+  date      DateTime @default(now())
 
   totalRequests    Int
   totalCost        Float
@@ -175,9 +188,10 @@ model DailySummary {
   p95Latency Float?
   p99Latency Float?
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  @@unique([organizationId, date])
+  @@unique([projectId, date])
+  @@index([projectId])
 }
 
 model Model {
@@ -218,40 +232,43 @@ model Budget {
   updatedAt DateTime @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
 }
 
 model Alert {
-  id             String   @id @default(cuid())
-  organizationId String
-  type           String
-  message        String
-  metadata       String?
-  isRead         Boolean  @default(false)
-  createdAt      DateTime @default(now())
+  id        String   @id @default(cuid())
+  projectId String?
+  type      String
+  message   String
+  metadata  String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([projectId])
 }
 
 model AutoOptimizeConfig {
-  id             String @id @default(cuid())
-  organizationId String @unique
+  id        String @id @default(cuid())
+  projectId String @unique
 
   isEnabled Boolean @default(false)
 
   maxSavingsTarget Float  @default(0.3)
-  qualityTolerance String @default("moderate")
+  qualityTolerance String @default("moderate") // "strict" | "moderate" | "aggressive"
 
   excludedEndpoints String?
-
-  alwaysUsePremiumFor String?
+  routingRules      String? // JSON: model mapping overrides
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 model Recommendation {
-  id             String @id @default(cuid())
-  organizationId String
+  id        String @id @default(cuid())
+  projectId String
 
   type        String
   priority    String
@@ -269,7 +286,9 @@ model Recommendation {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
 }
 
 model CacheEntry {

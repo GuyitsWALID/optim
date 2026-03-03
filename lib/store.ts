@@ -1,15 +1,19 @@
 import { create } from 'zustand'
 
 // Types
-export interface ApiKey {
+export interface Project {
   id: string
-  name: string | null
-  provider: string
-  lastUsedAt: string | null
+  name: string
+  description: string | null
+  projectKey: string
+  providers: string[]
+  models: string[]
+  sdkPlatform: string
+  totalRequests: number
+  totalCost30d: number
+  lastActivityAt: string | null
+  autoOptimizeEnabled: boolean
   createdAt: string
-  _count: {
-    requests: number
-  }
 }
 
 export interface CostSummary {
@@ -22,6 +26,7 @@ export interface DailyData {
   date: string
   totalCost: number
   totalRequests: number
+  totalTokens?: number
 }
 
 export interface Recommendation {
@@ -32,6 +37,7 @@ export interface Recommendation {
   description: string
   estimatedSavings?: number
   implementationEffort?: string
+  project?: { name: string }
 }
 
 export interface AutoOptimizeConfig {
@@ -39,6 +45,7 @@ export interface AutoOptimizeConfig {
   maxSavingsTarget: number
   qualityTolerance: string
   excludedEndpoints?: string
+  routingRules?: string
 }
 
 export interface OnboardingData {
@@ -61,9 +68,10 @@ interface DashboardState {
   userPreferences: OnboardingData | null
   loadingPreferences: boolean
 
-  // API Keys
-  apiKeys: ApiKey[]
-  loadingKeys: boolean
+  // Projects
+  projects: Project[]
+  selectedProjectId: string | null
+  loadingProjects: boolean
 
   // Costs
   period: 'day' | 'week' | 'month' | 'year'
@@ -77,7 +85,7 @@ interface DashboardState {
   recommendations: Recommendation[]
   loadingRecommendations: boolean
 
-  // Auto-optimize
+  // Auto-optimize (per project)
   autoOptimizeConfig: AutoOptimizeConfig | null
   loadingAutoOptimize: boolean
 
@@ -85,23 +93,23 @@ interface DashboardState {
   setOrganizationId: (id: string) => void
   setUserPreferences: (prefs: OnboardingData | null) => void
   fetchUserPreferences: () => Promise<void>
+  setSelectedProjectId: (id: string | null) => void
   setPeriod: (period: 'day' | 'week' | 'month' | 'year') => void
-  fetchApiKeys: () => Promise<void>
+  fetchProjects: () => Promise<void>
   fetchCosts: () => Promise<void>
   fetchRecommendations: () => Promise<void>
-  fetchAutoOptimize: () => Promise<void>
-  toggleAutoOptimize: (enabled: boolean) => Promise<void>
-  addApiKey: (key: string, provider: string, name?: string) => Promise<void>
-  deleteApiKey: (id: string) => Promise<void>
+  fetchAutoOptimize: (projectId: string) => Promise<void>
+  toggleAutoOptimize: (projectId: string, enabled: boolean) => Promise<void>
 }
 
 export const useDashboardStore = create<DashboardState>((set, get) => ({
   // Initial state
-  organizationId: 'demo-org', // Default for demo
+  organizationId: null,
   userPreferences: null,
   loadingPreferences: false,
-  apiKeys: [],
-  loadingKeys: false,
+  projects: [],
+  selectedProjectId: null,
+  loadingProjects: false,
   period: 'month',
   costSummary: { totalCost: 0, totalRequests: 0, totalTokens: 0 },
   dailyData: [],
@@ -122,7 +130,6 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     try {
       const res = await fetch('/api/v1/user/preferences')
       const data = await res.json()
-      // Check both preferences and onboardingCompleted flag
       if (data.preferences || data.onboardingCompleted) {
         set({ userPreferences: data.preferences })
         if (data.organizationId) {
@@ -136,34 +143,40 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     }
   },
 
+  setSelectedProjectId: (id) => {
+    set({ selectedProjectId: id })
+    // Re-fetch costs and recommendations when project changes
+    get().fetchCosts()
+    get().fetchRecommendations()
+  },
+
   setPeriod: (period) => {
     set({ period })
     get().fetchCosts()
   },
 
-  fetchApiKeys: async () => {
-    const { organizationId } = get()
-    if (!organizationId) return
-
-    set({ loadingKeys: true })
+  fetchProjects: async () => {
+    set({ loadingProjects: true })
     try {
-      const res = await fetch(`/api/v1/keys?organizationId=${organizationId}`)
+      const res = await fetch('/api/v1/projects')
       const data = await res.json()
-      set({ apiKeys: data.apiKeys || [] })
+      set({ projects: data.projects || [] })
     } catch (error) {
-      console.error('Error fetching API keys:', error)
+      console.error('Error fetching projects:', error)
     } finally {
-      set({ loadingKeys: false })
+      set({ loadingProjects: false })
     }
   },
 
   fetchCosts: async () => {
-    const { organizationId, period } = get()
-    if (!organizationId) return
+    const { period, selectedProjectId } = get()
 
     set({ loadingCosts: true })
     try {
-      const res = await fetch(`/api/v1/costs?organizationId=${organizationId}&period=${period}`)
+      const params = new URLSearchParams({ period })
+      if (selectedProjectId) params.set('projectId', selectedProjectId)
+
+      const res = await fetch(`/api/v1/costs?${params}`)
       const data = await res.json()
       set({
         costSummary: data.summary || { totalCost: 0, totalRequests: 0, totalTokens: 0 },
@@ -179,12 +192,14 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   },
 
   fetchRecommendations: async () => {
-    const { organizationId } = get()
-    if (!organizationId) return
+    const { selectedProjectId } = get()
 
     set({ loadingRecommendations: true })
     try {
-      const res = await fetch(`/api/v1/recommendations?organizationId=${organizationId}`)
+      const params = new URLSearchParams()
+      if (selectedProjectId) params.set('projectId', selectedProjectId)
+
+      const res = await fetch(`/api/v1/recommendations?${params}`)
       const data = await res.json()
       set({ recommendations: data.recommendations || [] })
     } catch (error) {
@@ -194,13 +209,10 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     }
   },
 
-  fetchAutoOptimize: async () => {
-    const { organizationId } = get()
-    if (!organizationId) return
-
+  fetchAutoOptimize: async (projectId: string) => {
     set({ loadingAutoOptimize: true })
     try {
-      const res = await fetch(`/api/v1/auto-optimize?organizationId=${organizationId}`)
+      const res = await fetch(`/api/v1/auto-optimize?projectId=${projectId}`)
       const data = await res.json()
       set({ autoOptimizeConfig: data.config || null })
     } catch (error) {
@@ -210,16 +222,14 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     }
   },
 
-  toggleAutoOptimize: async (enabled) => {
-    const { organizationId, autoOptimizeConfig } = get()
-    if (!organizationId) return
-
+  toggleAutoOptimize: async (projectId: string, enabled: boolean) => {
+    const { autoOptimizeConfig } = get()
     try {
       const res = await fetch('/api/v1/auto-optimize', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          organizationId,
+          projectId,
           isEnabled: enabled,
           maxSavingsTarget: autoOptimizeConfig?.maxSavingsTarget || 0.3,
           qualityTolerance: autoOptimizeConfig?.qualityTolerance || 'moderate',
@@ -229,32 +239,6 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       set({ autoOptimizeConfig: data.config })
     } catch (error) {
       console.error('Error toggling auto-optimize:', error)
-    }
-  },
-
-  addApiKey: async (key, provider, name) => {
-    const { organizationId, fetchApiKeys } = get()
-    if (!organizationId) return
-
-    try {
-      await fetch('/api/v1/keys', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ organizationId, key, provider, name }),
-      })
-      await fetchApiKeys()
-    } catch (error) {
-      console.error('Error adding API key:', error)
-    }
-  },
-
-  deleteApiKey: async (id) => {
-    const { fetchApiKeys } = get()
-    try {
-      await fetch(`/api/v1/keys?id=${id}`, { method: 'DELETE' })
-      await fetchApiKeys()
-    } catch (error) {
-      console.error('Error deleting API key:', error)
     }
   },
 }))

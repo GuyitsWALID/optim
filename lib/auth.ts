@@ -26,6 +26,7 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
   emailAndPassword: {
+    
     enabled: true,
   },
   socialProviders: {

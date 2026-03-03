@@ -1,0 +1,25 @@
+{
+  "name": "@optim/sdk",
+  "version": "0.1.0",
+  "description": "Optim SDK - Track and optimize AI costs automatically",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "keywords": ["ai", "llm", "cost-tracking", "openai", "optimization"],
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  },
+  "peerDependencies": {
+    "openai": "^4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "openai": {
+      "optional": true
+    }
+  }
+}
