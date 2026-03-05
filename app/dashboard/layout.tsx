@@ -13,6 +13,8 @@ import {
   Settings,
   LogOut,
   ChevronDown,
+  Menu,
+  X,
 } from 'lucide-react'
 
 const navItems = [
@@ -48,6 +50,7 @@ export default function DashboardLayout({
   const pageTitle = pageTitles[pathname] || 'Dashboard'
   const { user, loading, signOut } = useSession()
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Close dropdown when clicking outside
@@ -61,13 +64,47 @@ export default function DashboardLayout({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    setSidebarOpen(false)
+  }, [pathname])
+
+  // Prevent body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [sidebarOpen])
+
   const initials = user?.name ? getInitials(user.name) : '?'
   const displayName = user?.name || 'User'
 
   return (
     <div className="min-h-screen bg-[var(--bg)]">
+      {/* Mobile sidebar overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 bottom-0 w-64 bg-[var(--surface)] border-r border-[var(--border)] p-4 hidden lg:block">
+      <aside
+        className={`fixed left-0 top-0 bottom-0 w-64 bg-[var(--surface)] border-r border-[var(--border)] p-4 z-50 transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        } lg:z-auto`}
+      >
+        {/* Mobile close button */}
+        <button
+          onClick={() => setSidebarOpen(false)}
+          className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-[var(--surface-elevated)] transition-colors lg:hidden"
+        >
+          <X className="w-5 h-5" />
+        </button>
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 mb-8 px-3">
           <img src="logo3.png" alt="OPTIM Logo" className='h-9 w-9'/>
@@ -136,9 +173,17 @@ export default function DashboardLayout({
       {/* Main content */}
       <div className="lg:ml-64">
         {/* Top bar */}
-        <header className="sticky top-0 z-40 bg-[var(--bg)]/80 backdrop-blur-sm border-b border-[var(--border)] px-6 py-4">
+        <header className="sticky top-0 z-30 bg-[var(--bg)]/80 backdrop-blur-sm border-b border-[var(--border)] px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="font-display font-bold text-2xl">{pageTitle}</h1>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="p-2 -ml-2 rounded-lg hover:bg-[var(--surface-elevated)] transition-colors lg:hidden"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+              <h1 className="font-display font-bold text-xl sm:text-2xl">{pageTitle}</h1>
+            </div>
             <div className="flex items-center gap-4">
               <ThemeToggle />
 
