@@ -3,8 +3,11 @@
 import React from 'react'
 import {
   OpenAI, Anthropic, Gemini, AzureAI, DeepSeek, Qwen, Groq, Ollama, Grok,
-  Mistral, Zhipu, Moonshot, Minimax, Yi, Bedrock,
+  Mistral, Zhipu, Moonshot, Minimax, Yi, Bedrock, Meta, Cohere, Perplexity,
 } from '@lobehub/icons'
+
+// xAI doesn't have a dedicated icon in lobehub, reuse Grok
+const XAI = Grok
 
 interface ProviderIconProps {
   provider: string
@@ -37,6 +40,10 @@ export function ProviderIcon({ provider, size = 24, className, colored, shape = 
       azure: <AzureAI.Avatar size={size} shape={shape} className={className} />,
       bedrock: <Bedrock.Avatar size={size} shape={shape} className={className} />,
       grok: <Grok.Avatar size={size} shape={shape} className={className} />,
+      meta: <Meta.Avatar size={size} shape={shape} className={className} />,
+      xai: <XAI.Avatar size={size} shape={shape} className={className} />,
+      cohere: <Cohere.Avatar size={size} shape={shape} className={className} />,
+      perplexity: <Perplexity.Avatar size={size} shape={shape} className={className} />,
     }
     return avatarMap[normalizedProvider] || <OpenAI.Avatar size={size} shape={shape} className={className} />
   }
@@ -58,6 +65,10 @@ export function ProviderIcon({ provider, size = 24, className, colored, shape = 
     azure: <AzureAI size={size} className={className} />,
     bedrock: <Bedrock size={size} className={className} />,
     grok: <Grok size={size} className={className} />,
+    meta: <Meta size={size} className={className} />,
+    xai: <XAI size={size} className={className} />,
+    cohere: <Cohere size={size} className={className} />,
+    perplexity: <Perplexity size={size} className={className} />,
   }
 
   return iconMap[normalizedProvider] || <OpenAI size={size} className={className} />
@@ -87,6 +98,10 @@ export function ProviderLogo({ provider, className }: ProviderLogoProps) {
     azure: <AzureAI.Avatar size={48} className={className} />,
     bedrock: <Bedrock.Avatar size={48} className={className} />,
     grok: <Grok.Avatar size={48} className={className} />,
+    meta: <Meta.Avatar size={48} className={className} />,
+    xai: <XAI.Avatar size={48} className={className} />,
+    cohere: <Cohere.Avatar size={48} className={className} />,
+    perplexity: <Perplexity.Avatar size={48} className={className} />,
   }
 
   return logoMap[normalizedProvider] || <OpenAI size={48} className={className} />

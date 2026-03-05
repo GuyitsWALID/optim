@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Plus, Search, FolderKanban, ExternalLink, Copy, Check, X, Terminal } from 'lucide-react'
 import { useDashboardStore, type Project } from '@/lib/store'
 import { ProviderIcon } from '@/components/dashboard/ProviderIcon'
 import { CodeBlock } from '@/components/ui/CodeBlock'
+import { modelPricing } from '@/lib/model-pricing'
 import Link from 'next/link'
 
 const PROVIDERS = [
@@ -14,6 +15,10 @@ const PROVIDERS = [
   { value: 'deepseek', label: 'DeepSeek' },
   { value: 'qwen', label: 'Qwen (Alibaba)' },
   { value: 'mistral', label: 'Mistral AI' },
+  { value: 'meta', label: 'Meta (Llama)' },
+  { value: 'xai', label: 'xAI (Grok)' },
+  { value: 'cohere', label: 'Cohere' },
+  { value: 'perplexity', label: 'Perplexity' },
   { value: 'zhipu', label: 'Zhipu (GLM)' },
   { value: 'moonshot', label: 'Moonshot (Kimi)' },
   { value: 'minimax', label: 'MiniMax' },
@@ -23,96 +28,14 @@ const PROVIDERS = [
   { value: 'bedrock', label: 'AWS Bedrock' },
 ]
 
-const MODELS_BY_PROVIDER: Record<string, { value: string; label: string }[]> = {
-  openai: [
-    { value: 'gpt-4.1', label: 'GPT-4.1' },
-    { value: 'gpt-4.1-mini', label: 'GPT-4.1 Mini' },
-    { value: 'gpt-4.1-nano', label: 'GPT-4.1 Nano' },
-    { value: 'gpt-4o', label: 'GPT-4o' },
-    { value: 'gpt-4o-mini', label: 'GPT-4o Mini' },
-    { value: 'o3', label: 'o3' },
-    { value: 'o3-mini', label: 'o3 Mini' },
-    { value: 'o1', label: 'o1' },
-    { value: 'o1-mini', label: 'o1 Mini' },
-  ],
-  anthropic: [
-    { value: 'claude-sonnet-4-20250514', label: 'Claude Sonnet 4' },
-    { value: 'claude-opus-4-20250514', label: 'Claude Opus 4' },
-    { value: 'claude-3-5-sonnet-20241022', label: 'Claude 3.5 Sonnet' },
-    { value: 'claude-3-5-haiku-20241022', label: 'Claude 3.5 Haiku' },
-    { value: 'claude-3-opus-20240229', label: 'Claude 3 Opus' },
-  ],
-  google: [
-    { value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
-    { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
-    { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
-    { value: 'gemini-2.0-flash-lite', label: 'Gemini 2.0 Flash Lite' },
-    { value: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro' },
-    { value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash' },
-  ],
-  deepseek: [
-    { value: 'deepseek-r1', label: 'DeepSeek R1' },
-    { value: 'deepseek-v3', label: 'DeepSeek V3' },
-    { value: 'deepseek-chat', label: 'DeepSeek Chat' },
-    { value: 'deepseek-coder', label: 'DeepSeek Coder' },
-  ],
-  qwen: [
-    { value: 'qwen-max', label: 'Qwen Max' },
-    { value: 'qwen-plus', label: 'Qwen Plus' },
-    { value: 'qwen-turbo', label: 'Qwen Turbo' },
-    { value: 'qwen-long', label: 'Qwen Long' },
-    { value: 'qwen2.5-72b-instruct', label: 'Qwen 2.5 72B' },
-    { value: 'qwen2.5-coder-32b', label: 'Qwen 2.5 Coder 32B' },
-  ],
-  mistral: [
-    { value: 'mistral-large-latest', label: 'Mistral Large' },
-    { value: 'mistral-medium-latest', label: 'Mistral Medium' },
-    { value: 'mistral-small-latest', label: 'Mistral Small' },
-    { value: 'codestral-latest', label: 'Codestral' },
-    { value: 'pixtral-large-latest', label: 'Pixtral Large' },
-    { value: 'ministral-8b-latest', label: 'Ministral 8B' },
-  ],
-  zhipu: [
-    { value: 'glm-4-plus', label: 'GLM-4 Plus' },
-    { value: 'glm-4', label: 'GLM-4' },
-    { value: 'glm-4-flash', label: 'GLM-4 Flash' },
-    { value: 'glm-4-long', label: 'GLM-4 Long' },
-    { value: 'glm-4v-plus', label: 'GLM-4V Plus (Vision)' },
-  ],
-  moonshot: [
-    { value: 'moonshot-v1-128k', label: 'Kimi 128K' },
-    { value: 'moonshot-v1-32k', label: 'Kimi 32K' },
-    { value: 'moonshot-v1-8k', label: 'Kimi 8K' },
-  ],
-  minimax: [
-    { value: 'abab6.5s-chat', label: 'MiniMax abab 6.5s' },
-    { value: 'abab6.5-chat', label: 'MiniMax abab 6.5' },
-    { value: 'abab5.5-chat', label: 'MiniMax abab 5.5' },
-  ],
-  yi: [
-    { value: 'yi-large', label: 'Yi Large' },
-    { value: 'yi-medium', label: 'Yi Medium' },
-    { value: 'yi-spark', label: 'Yi Spark' },
-    { value: 'yi-large-turbo', label: 'Yi Large Turbo' },
-  ],
-  groq: [
-    { value: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B' },
-    { value: 'llama-3.1-8b-instant', label: 'Llama 3.1 8B' },
-    { value: 'mixtral-8x7b-32768', label: 'Mixtral 8x7B' },
-    { value: 'gemma2-9b-it', label: 'Gemma 2 9B' },
-  ],
-  azure: [
-    { value: 'gpt-4o', label: 'GPT-4o (Azure)' },
-    { value: 'gpt-4o-mini', label: 'GPT-4o Mini (Azure)' },
-    { value: 'gpt-4.1', label: 'GPT-4.1 (Azure)' },
-  ],
-  bedrock: [
-    { value: 'anthropic.claude-3-5-sonnet-20241022-v2:0', label: 'Claude 3.5 Sonnet (Bedrock)' },
-    { value: 'anthropic.claude-3-haiku-20240307-v1:0', label: 'Claude 3 Haiku (Bedrock)' },
-    { value: 'amazon.nova-pro-v1:0', label: 'Amazon Nova Pro' },
-    { value: 'amazon.nova-lite-v1:0', label: 'Amazon Nova Lite' },
-    { value: 'meta.llama3-1-70b-instruct-v1:0', label: 'Llama 3.1 70B (Bedrock)' },
-  ],
+// Derive model options dynamically from the single source of truth
+function buildModelsByProvider(): Record<string, { value: string; label: string }[]> {
+  const map: Record<string, { value: string; label: string }[]> = {}
+  for (const m of modelPricing) {
+    if (!map[m.provider]) map[m.provider] = []
+    map[m.provider].push({ value: m.name, label: m.displayName })
+  }
+  return map
 }
 
 const PLATFORMS = [
@@ -336,6 +259,8 @@ function CreateProjectModal({
   } | null>(null)
   const [copied, setCopied] = useState(false)
 
+  const MODELS_BY_PROVIDER = useMemo(() => buildModelsByProvider(), [])
+
   const availableModels = selectedProviders.flatMap(
     (p) => MODELS_BY_PROVIDER[p] || []
   )
@@ -344,7 +269,7 @@ function CreateProjectModal({
     if (selectedProviders.includes(provider)) {
       setSelectedProviders((prev) => prev.filter((p) => p !== provider))
       // Remove models from that provider
-      const providerModels = (MODELS_BY_PROVIDER[provider] || []).map((m) => m.value)
+      const providerModels = (MODELS_BY_PROVIDER[provider] || []).map((m: { value: string }) => m.value)
       setSelectedModels((prev) => prev.filter((m) => !providerModels.includes(m)))
     } else {
       setSelectedProviders((prev) => [...prev, provider])

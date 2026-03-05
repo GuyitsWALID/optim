@@ -210,6 +210,12 @@ model Model {
   capabilityTier String?
   isActive       Boolean @default(true)
 
+  openRouterId     String?   @unique
+  description      String?
+  inputModalities  String?
+  outputModalities String?
+  lastSyncedAt     DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

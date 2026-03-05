@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import { Layers, Search, Grid3X3, List, Eye, X, ArrowUpDown, Sparkles, MessageSquare, Wrench, ScanEye } from 'lucide-react'
-import { modelPricing, type ModelPricing } from '@/lib/model-pricing'
+import { useState, useMemo, useCallback } from 'react'
+import { Layers, Search, Grid3X3, List, Eye, X, ArrowUpDown, Sparkles, MessageSquare, Wrench, ScanEye, RefreshCw, Clock } from 'lucide-react'
+import { modelPricing, MODEL_DATA_LAST_UPDATED, type ModelPricing } from '@/lib/model-pricing'
 import { useDashboardStore } from '@/lib/store'
 import { ProviderIcon } from '@/components/dashboard/ProviderIcon'
 
@@ -29,6 +29,24 @@ export default function ModelCatalogPage() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const [compareIds, setCompareIds] = useState<Set<string>>(new Set())
   const [showCompare, setShowCompare] = useState(false)
+  const [syncing, setSyncing] = useState(false)
+  const [syncResult, setSyncResult] = useState<{ synced: number; errors: number } | null>(null)
+
+  const handleSync = useCallback(async () => {
+    setSyncing(true)
+    setSyncResult(null)
+    try {
+      const res = await fetch('/api/v1/models/sync', { method: 'POST' })
+      const data = await res.json()
+      if (data.success) {
+        setSyncResult({ synced: data.synced, errors: data.errors })
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setSyncing(false)
+    }
+  }, [])
 
   // Usage lookup
   const usageMap = useMemo(() => {
@@ -82,11 +100,31 @@ export default function ModelCatalogPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Model Catalog</h1>
-          <p className="text-sm mt-1" style={{ color: 'var(--foreground-muted)' }}>
-            Browse {modelPricing.length} models across {ALL_PROVIDERS.length} providers
-          </p>
+          <div className="flex items-center gap-3 mt-1">
+            <p className="text-sm" style={{ color: 'var(--foreground-muted)' }}>
+              Browse {modelPricing.length} models across {ALL_PROVIDERS.length} providers
+            </p>
+            <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--foreground-muted)' }}>
+              <Clock className="w-3 h-3" />
+              Updated {MODEL_DATA_LAST_UPDATED}
+            </span>
+            {syncResult && (
+              <span className="text-xs text-emerald-400">
+                Synced {syncResult.synced} models
+              </span>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={handleSync}
+            disabled={syncing}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+            style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
+          >
+            <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
+            {syncing ? 'Syncing...' : 'Sync Models'}
+          </button>
           {compareIds.size > 0 && (
             <button
               onClick={() => setShowCompare(true)}
