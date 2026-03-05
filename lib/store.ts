@@ -48,6 +48,27 @@ export interface AutoOptimizeConfig {
   routingRules?: string
 }
 
+export interface RequestLog {
+  id: string
+  projectId: string
+  model: string
+  provider: string
+  promptTokens: number
+  completionTokens: number
+  totalTokens: number
+  cost: number
+  latencyMs: number | null
+  isStreaming: boolean
+  originalModel: string | null
+  status: string | null
+  errorType: string | null
+  feature: string | null
+  tags: string | null
+  runtime: string | null
+  createdAt: string
+  project: { name: string }
+}
+
 export interface OnboardingData {
   useCases: string[]
   projectType: 'company' | 'personal'
@@ -85,6 +106,11 @@ interface DashboardState {
   recommendations: Recommendation[]
   loadingRecommendations: boolean
 
+  // Requests / usage logs
+  requestLogs: RequestLog[]
+  requestLogsTotal: number
+  loadingRequestLogs: boolean
+
   // Auto-optimize (per project)
   autoOptimizeConfig: AutoOptimizeConfig | null
   loadingAutoOptimize: boolean
@@ -98,6 +124,7 @@ interface DashboardState {
   fetchProjects: () => Promise<void>
   fetchCosts: () => Promise<void>
   fetchRecommendations: () => Promise<void>
+  fetchRequestLogs: (params?: { projectId?: string; limit?: number; offset?: number }) => Promise<void>
   fetchAutoOptimize: (projectId: string) => Promise<void>
   toggleAutoOptimize: (projectId: string, enabled: boolean) => Promise<void>
 }
@@ -118,6 +145,9 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   loadingCosts: false,
   recommendations: [],
   loadingRecommendations: false,
+  requestLogs: [],
+  requestLogsTotal: 0,
+  loadingRequestLogs: false,
   autoOptimizeConfig: null,
   loadingAutoOptimize: false,
 
@@ -206,6 +236,24 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       console.error('Error fetching recommendations:', error)
     } finally {
       set({ loadingRecommendations: false })
+    }
+  },
+
+  fetchRequestLogs: async (params) => {
+    set({ loadingRequestLogs: true })
+    try {
+      const searchParams = new URLSearchParams()
+      if (params?.projectId) searchParams.set('projectId', params.projectId)
+      if (params?.limit) searchParams.set('limit', String(params.limit))
+      if (params?.offset) searchParams.set('offset', String(params.offset))
+
+      const res = await fetch(`/api/v1/requests?${searchParams}`)
+      const data = await res.json()
+      set({ requestLogs: data.requests || [], requestLogsTotal: data.total || 0 })
+    } catch (error) {
+      console.error('Error fetching request logs:', error)
+    } finally {
+      set({ loadingRequestLogs: false })
     }
   },
 

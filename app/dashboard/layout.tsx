@@ -15,20 +15,57 @@ import {
   ChevronDown,
   Menu,
   X,
+  BarChart3,
+  ScrollText,
+  Layers,
+  Wallet,
 } from 'lucide-react'
 
-const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/dashboard/projects', label: 'Projects', icon: FolderKanban },
-  { href: '/dashboard/recommendations', label: 'Recommendations', icon: Lightbulb },
-  { href: '/dashboard/benchmarks', label: 'Benchmarks', icon: TrendingUp },
+interface NavSection {
+  label: string
+  items: { href: string; label: string; icon: typeof LayoutDashboard }[]
+}
+
+const navSections: NavSection[] = [
+  {
+    label: '',
+    items: [
+      { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+      { href: '/dashboard/projects', label: 'Projects', icon: FolderKanban },
+    ],
+  },
+  {
+    label: 'ANALYSIS',
+    items: [
+      { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
+      { href: '/dashboard/logs', label: 'Usage Logs', icon: ScrollText },
+      { href: '/dashboard/benchmarks', label: 'Benchmarks', icon: TrendingUp },
+    ],
+  },
+  {
+    label: 'OPTIMIZE',
+    items: [
+      { href: '/dashboard/recommendations', label: 'Recommendations', icon: Lightbulb },
+      { href: '/dashboard/models', label: 'Model Catalog', icon: Layers },
+    ],
+  },
+  {
+    label: 'MANAGE',
+    items: [
+      { href: '/dashboard/budgets', label: 'Budgets & Alerts', icon: Wallet },
+    ],
+  },
 ]
 
 const pageTitles: Record<string, string> = {
   '/dashboard': 'Dashboard',
   '/dashboard/projects': 'Projects',
-  '/dashboard/recommendations': 'Recommendations',
+  '/dashboard/analytics': 'Analytics',
+  '/dashboard/logs': 'Usage Logs',
   '/dashboard/benchmarks': 'Benchmarks',
+  '/dashboard/recommendations': 'Recommendations',
+  '/dashboard/models': 'Model Catalog',
+  '/dashboard/budgets': 'Budgets & Alerts',
   '/dashboard/settings': 'Settings',
 }
 
@@ -112,26 +149,37 @@ export default function DashboardLayout({
         </Link>
 
         {/* Navigation */}
-        <nav className="space-y-1">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href
-            const Icon = item.icon
+        <nav className="space-y-4 overflow-y-auto max-h-[calc(100vh-280px)]">
+          {navSections.map((section, idx) => (
+            <div key={idx}>
+              {section.label && (
+                <p className="px-3 mb-1.5 text-[10px] font-semibold tracking-widest text-[var(--foreground-muted)] uppercase">
+                  {section.label}
+                </p>
+              )}
+              <div className="space-y-0.5">
+                {section.items.map((item) => {
+                  const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href + '/'))
+                  const Icon = item.icon
 
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-all duration-200 ${
-                  isActive
-                    ? 'bg-[var(--accent)] text-white shadow-lg shadow-[var(--accent)]/25'
-                    : 'text-[var(--foreground-secondary)] hover:bg-[var(--surface-elevated)] hover:text-[var(--foreground)]'
-                }`}
-              >
-                <Icon className={`w-5 h-5 ${isActive ? 'text-white' : ''}`} />
-                {item.label}
-              </Link>
-            )
-          })}
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                        isActive
+                          ? 'bg-[var(--accent)] text-white shadow-lg shadow-[var(--accent)]/25'
+                          : 'text-[var(--foreground-secondary)] hover:bg-[var(--surface-elevated)] hover:text-[var(--foreground)]'
+                      }`}
+                    >
+                      <Icon className={`w-4.5 h-4.5 ${isActive ? 'text-white' : ''}`} />
+                      {item.label}
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         {/* Bottom section - User profile + Settings */}

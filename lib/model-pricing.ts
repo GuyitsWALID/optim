@@ -11,6 +11,12 @@ export interface ModelPricing {
   capabilityTier: 'low' | 'medium' | 'high'
   supportsVision?: boolean
   supportsFunctionCalling?: boolean
+  benchmarkScores?: {
+    mmlu?: number        // 0-100
+    humanEval?: number   // 0-100
+    math?: number        // 0-100
+    chatbotArena?: number // ELO rating
+  }
 }
 
 export const modelPricing: ModelPricing[] = [
@@ -728,3 +734,43 @@ export function getCheaperAlternatives(modelName: string): ModelPricing[] {
     .sort((a, b) => (a.inputPrice + a.outputPrice) - (b.inputPrice + b.outputPrice))
     .slice(0, 3)
 }
+
+// ============ Public Benchmark Scores ============
+// Curated from public sources: Chatbot Arena, MMLU, HumanEval, MATH
+// Last updated: March 2026
+export interface PublicBenchmark {
+  model: string
+  displayName: string
+  provider: string
+  chatbotArena?: number  // ELO rating
+  mmlu?: number          // 0-100 accuracy
+  humanEval?: number     // 0-100 pass@1
+  math?: number          // 0-100 accuracy
+  gpqa?: number          // 0-100 accuracy
+}
+
+export const publicBenchmarks: PublicBenchmark[] = [
+  { model: 'gpt-4.1', displayName: 'GPT-4.1', provider: 'openai', chatbotArena: 1380, mmlu: 90.2, humanEval: 92.0, math: 82.5, gpqa: 56.1 },
+  { model: 'gpt-4.1-mini', displayName: 'GPT-4.1 Mini', provider: 'openai', chatbotArena: 1320, mmlu: 87.5, humanEval: 87.2, math: 76.0, gpqa: 49.3 },
+  { model: 'gpt-4.1-nano', displayName: 'GPT-4.1 Nano', provider: 'openai', chatbotArena: 1250, mmlu: 80.1, humanEval: 78.5, math: 62.4 },
+  { model: 'gpt-4o', displayName: 'GPT-4o', provider: 'openai', chatbotArena: 1340, mmlu: 88.7, humanEval: 90.2, math: 76.6, gpqa: 53.6 },
+  { model: 'gpt-4o-mini', displayName: 'GPT-4o Mini', provider: 'openai', chatbotArena: 1275, mmlu: 82.0, humanEval: 87.0, math: 70.2 },
+  { model: 'o3', displayName: 'o3', provider: 'openai', chatbotArena: 1415, mmlu: 92.3, humanEval: 96.7, math: 96.7, gpqa: 87.7 },
+  { model: 'o3-mini', displayName: 'o3 Mini', provider: 'openai', chatbotArena: 1370, mmlu: 86.9, humanEval: 92.6, math: 90.0, gpqa: 79.6 },
+  { model: 'o1', displayName: 'o1', provider: 'openai', chatbotArena: 1352, mmlu: 91.8, humanEval: 94.4, math: 94.8, gpqa: 78.0 },
+  { model: 'claude-opus-4-20250514', displayName: 'Claude Opus 4', provider: 'anthropic', chatbotArena: 1410, mmlu: 91.5, humanEval: 95.2, math: 83.5, gpqa: 60.4 },
+  { model: 'claude-sonnet-4-20250514', displayName: 'Claude Sonnet 4', provider: 'anthropic', chatbotArena: 1395, mmlu: 90.4, humanEval: 93.7, math: 81.1, gpqa: 59.4 },
+  { model: 'claude-3-5-sonnet-20241022', displayName: 'Claude 3.5 Sonnet', provider: 'anthropic', chatbotArena: 1268, mmlu: 88.7, humanEval: 92.0, math: 78.3, gpqa: 59.4 },
+  { model: 'claude-3-5-haiku-20241022', displayName: 'Claude 3.5 Haiku', provider: 'anthropic', chatbotArena: 1188, mmlu: 77.1, humanEval: 88.1, math: 69.2 },
+  { model: 'gemini-2.5-pro', displayName: 'Gemini 2.5 Pro', provider: 'google', chatbotArena: 1405, mmlu: 91.8, humanEval: 94.5, math: 86.2, gpqa: 63.0 },
+  { model: 'gemini-2.5-flash', displayName: 'Gemini 2.5 Flash', provider: 'google', chatbotArena: 1351, mmlu: 86.2, humanEval: 89.3, math: 78.8, gpqa: 52.1 },
+  { model: 'gemini-2.0-flash', displayName: 'Gemini 2.0 Flash', provider: 'google', chatbotArena: 1305, mmlu: 83.5, humanEval: 85.0, math: 73.4 },
+  { model: 'deepseek-r1', displayName: 'DeepSeek R1', provider: 'deepseek', chatbotArena: 1358, mmlu: 90.8, humanEval: 92.8, math: 97.3, gpqa: 71.5 },
+  { model: 'deepseek-v3', displayName: 'DeepSeek V3', provider: 'deepseek', chatbotArena: 1318, mmlu: 88.5, humanEval: 89.4, math: 75.9, gpqa: 59.1 },
+  { model: 'qwen-max', displayName: 'Qwen Max', provider: 'qwen', chatbotArena: 1290, mmlu: 86.2, humanEval: 86.0, math: 71.8 },
+  { model: 'qwen-plus', displayName: 'Qwen Plus', provider: 'qwen', chatbotArena: 1245, mmlu: 83.8, humanEval: 82.4, math: 66.5 },
+  { model: 'mistral-large', displayName: 'Mistral Large', provider: 'mistral', chatbotArena: 1265, mmlu: 84.0, humanEval: 84.7, math: 69.4 },
+  { model: 'mistral-medium', displayName: 'Mistral Medium', provider: 'mistral', chatbotArena: 1220, mmlu: 80.5, humanEval: 79.2, math: 63.1 },
+  { model: 'glm-4-plus', displayName: 'GLM-4 Plus', provider: 'zhipu', chatbotArena: 1215, mmlu: 82.3, humanEval: 78.0, math: 64.2 },
+  { model: 'yi-large', displayName: 'Yi Large', provider: 'yi', chatbotArena: 1210, mmlu: 81.5, humanEval: 79.7, math: 62.1 },
+]
