@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@lobehub/icons": "^4.7.0",
+    "@optim/sdk": "file:packages/sdk",
     "@prisma/adapter-pg": "^5.22.0",
     "@prisma/client": "5.22.0",
     "better-auth": "^1.0.0",
