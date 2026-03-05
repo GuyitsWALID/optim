@@ -295,7 +295,7 @@ export default function BenchmarksPage() {
                           <td className="py-3 px-3 font-medium">{m.model}</td>
                           <td className="py-3 px-3">
                             <div className="flex items-center gap-2">
-                              <ProviderIcon provider={m.provider} size={18} />
+                              <ProviderIcon provider={m.provider} size={18} colored shape="circle" />
                               <span className="text-sm capitalize">{m.provider}</span>
                             </div>
                           </td>
@@ -338,7 +338,7 @@ export default function BenchmarksPage() {
                 {providerData.map((p, i) => (
                   <div key={p.provider} className="bento-card">
                     <div className="flex items-center gap-3 mb-4">
-                      <ProviderIcon provider={p.provider} size={28} colored />
+                      <ProviderIcon provider={p.provider} size={28} colored shape="circle" />
                       <h3 className="font-semibold capitalize">{p.provider}</h3>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
@@ -458,7 +458,7 @@ export default function BenchmarksPage() {
                         <td className="py-3 px-3 font-medium">{b.displayName}</td>
                         <td className="py-3 px-3">
                           <div className="flex items-center gap-2">
-                            <ProviderIcon provider={b.provider} size={18} />
+                            <ProviderIcon provider={b.provider} size={18} colored shape="circle" />
                             <span className="text-sm capitalize">{b.provider}</span>
                           </div>
                         </td>

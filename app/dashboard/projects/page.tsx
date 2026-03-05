@@ -286,7 +286,7 @@ function ProjectCard({ project }: { project: Project }) {
             key={provider}
             title={provider}
           >
-            <ProviderIcon provider={provider} size={28} colored shape="square" />
+            <ProviderIcon provider={provider} size={28} colored shape="circle" />
           </div>
         ))}
       </div>
@@ -470,7 +470,7 @@ function CreateProjectModal({
                         : 'border-[var(--border)] hover:border-[var(--foreground-muted)]'
                     }`}
                   >
-                    <ProviderIcon provider={p.value} size={24} colored shape="square" />
+                    <ProviderIcon provider={p.value} size={24} colored shape="circle" />
                     <span className="text-sm font-medium">{p.label}</span>
                   </button>
                 ))}

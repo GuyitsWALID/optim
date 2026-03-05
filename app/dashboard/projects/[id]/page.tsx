@@ -216,7 +216,7 @@ export default function ProjectDetailPage() {
                   key={provider}
                   className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[var(--surface-elevated)]"
                 >
-                  <ProviderIcon provider={provider} size={16} colored shape="square" />
+                  <ProviderIcon provider={provider} size={16} colored shape="circle" />
                   <span className="text-xs capitalize">{provider}</span>
                 </div>
               ))}
@@ -353,7 +353,7 @@ export default function ProjectDetailPage() {
                     <td className="py-2 px-3 font-mono text-xs">{req.model}</td>
                     <td className="py-2 px-3">
                       <div className="flex items-center gap-1.5">
-                        <ProviderIcon provider={req.provider} size={14} />
+                        <ProviderIcon provider={req.provider} size={14} colored shape="circle" />
                         <span className="capitalize text-xs">{req.provider}</span>
                       </div>
                     </td>

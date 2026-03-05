@@ -226,7 +226,7 @@ export default function ModelCatalogPage() {
 
                 {/* Provider + Name */}
                 <div className="flex items-center gap-2 mb-3">
-                  <ProviderIcon provider={m.provider} size={24} />
+                  <ProviderIcon provider={m.provider} size={24} colored shape="circle" />
                   <div>
                     <p className="font-semibold text-sm">{m.displayName}</p>
                     <p className="text-xs" style={{ color: 'var(--foreground-muted)' }}>{m.provider}</p>
@@ -333,7 +333,7 @@ export default function ModelCatalogPage() {
                       <td className="py-3 px-4 font-medium text-sm">{m.displayName}</td>
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-1.5">
-                          <ProviderIcon provider={m.provider} size={16} />
+                          <ProviderIcon provider={m.provider} size={16} colored shape="circle" />
                           <span className="text-xs">{m.provider}</span>
                         </div>
                       </td>
@@ -398,7 +398,7 @@ export default function ModelCatalogPage() {
                     {compareModels.map(m => (
                       <th key={m.name} className="text-center py-3 px-4">
                         <div className="flex flex-col items-center gap-1">
-                          <ProviderIcon provider={m.provider} size={20} />
+                          <ProviderIcon provider={m.provider} size={20} colored shape="circle" />
                           <span className="font-medium text-sm">{m.displayName}</span>
                         </div>
                       </th>

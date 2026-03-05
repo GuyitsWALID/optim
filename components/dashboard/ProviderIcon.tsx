@@ -16,7 +16,7 @@ interface ProviderIconProps {
   shape?: 'circle' | 'square'
 }
 
-export function ProviderIcon({ provider, size = 24, className, colored, shape = 'square' }: ProviderIconProps) {
+export function ProviderIcon({ provider, size = 24, className, colored, shape = 'circle' }: ProviderIconProps) {
   const normalizedProvider = provider.toLowerCase()
 
   if (colored) {

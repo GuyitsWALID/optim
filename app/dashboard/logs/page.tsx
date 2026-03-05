@@ -406,7 +406,7 @@ function LogRow({
         <td className="py-3 px-4 whitespace-nowrap font-mono text-xs">{log.model}</td>
         <td className="py-3 px-4 whitespace-nowrap">
           <div className="flex items-center gap-1.5">
-            <ProviderIcon provider={log.provider} size={16} />
+            <ProviderIcon provider={log.provider} size={16} colored shape="circle" />
             <span className="text-xs">{log.provider}</span>
           </div>
         </td>
