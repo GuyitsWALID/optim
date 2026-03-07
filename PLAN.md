@@ -15,7 +15,7 @@ User's Project                              Optim Cloud
 ┌──────────────────────────┐               ┌───────────────────────┐
 │                          │   telemetry   │                       │
 │  import { wrapOpenAI }   │──────────────>│  Ingest API           │
-│  from '@optim/sdk'       │   (batched    │  ┌─────────────────┐  │
+│  from '@optimai/sdk'       │   (batched    │  ┌─────────────────┐  │
 │                          │    POST)      │  │ Cost Analytics   │  │
 │  const ai = wrapOpenAI(  │               │  │ Recommendations  │  │
 │    new OpenAI({          │  config poll  │  │ Auto-Optimize    │  │
@@ -50,10 +50,10 @@ What it NEVER sends:    API keys, prompt content, response content
 
 ## SDK Platforms
 
-### 1. Node.js / TypeScript — `@optim/sdk`
+### 1. Node.js / TypeScript — `@optimai/sdk`
 
 ```typescript
-import { initOptim, wrapOpenAI } from '@optim/sdk'
+import { initOptim, wrapOpenAI } from '@optimai/sdk'
 import OpenAI from 'openai'
 
 initOptim({ projectKey: 'opt_proj_...' })
@@ -124,7 +124,7 @@ curl -X POST https://app.optim.dev/api/v1/ingest \
 ## SDK Architecture
 
 ```
-@optim/sdk
+@optimai/sdk
 ├── core/
 │   ├── telemetry.ts        # Event batcher, transport, retry logic
 │   ├── config.ts           # Config fetching, caching (auto-optimize rules)
@@ -244,7 +244,7 @@ When a user creates a project, they provide:
 1. Creates a `Project` record with a generated project key (`opt_proj_xxxxxxxxxxxx`)
 2. Shows a setup page with:
    - The project key (copy button)
-   - Install command for the selected platform (`npm install @optim/sdk` or `pip install optim-sdk`)
+   - Install command for the selected platform (`npm install @optimai/sdk` or `pip install optim-sdk`)
    - Copy-paste setup code snippet tailored to their selected providers
    - A "Verify Installation" button that checks if telemetry has been received
 
@@ -511,7 +511,7 @@ Model pricing embedded in SDK releases. Dashboard can override with server-side 
 - Budgets and alerts (per-project)
 - Setup verification ("Verify Installation" check)
 - SDK documentation site
-- npm publish `@optim/sdk`, PyPI publish `optim-sdk`
+- npm publish `@optimai/sdk`, PyPI publish `optim-sdk`
 - End-to-end testing across all providers
 
 ---

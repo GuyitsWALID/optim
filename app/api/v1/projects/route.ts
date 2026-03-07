@@ -119,37 +119,37 @@ function getSetupCode(
       switch (p) {
         case 'openai':
         case 'azure':
-          return `import { wrapOpenAI } from '@optim/sdk'\nimport OpenAI from 'openai'\n\nconst openai = wrapOpenAI(new OpenAI())`
+          return `import { wrapOpenAI } from '@optimai/sdk'\nimport OpenAI from 'openai'\n\nconst openai = wrapOpenAI(new OpenAI())`
         case 'anthropic':
-          return `import { wrapAnthropic } from '@optim/sdk'\nimport Anthropic from '@anthropic-ai/sdk'\n\nconst anthropic = wrapAnthropic(new Anthropic())`
+          return `import { wrapAnthropic } from '@optimai/sdk'\nimport Anthropic from '@anthropic-ai/sdk'\n\nconst anthropic = wrapAnthropic(new Anthropic())`
         case 'google':
-          return `import { wrapGoogleAI } from '@optim/sdk'\nimport { GoogleGenerativeAI } from '@google/generative-ai'\n\nconst genAI = wrapGoogleAI(new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!))`
+          return `import { wrapGoogleAI } from '@optimai/sdk'\nimport { GoogleGenerativeAI } from '@google/generative-ai'\n\nconst genAI = wrapGoogleAI(new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!))`
         case 'deepseek':
-          return `import { wrapOpenAI } from '@optim/sdk'\nimport OpenAI from 'openai'\n\n// DeepSeek uses an OpenAI-compatible API\nconst deepseek = wrapOpenAI(new OpenAI({\n  baseURL: 'https://api.deepseek.com/v1',\n  apiKey: process.env.DEEPSEEK_API_KEY,\n}))`
+          return `import { wrapOpenAI } from '@optimai/sdk'\nimport OpenAI from 'openai'\n\n// DeepSeek uses an OpenAI-compatible API\nconst deepseek = wrapOpenAI(new OpenAI({\n  baseURL: 'https://api.deepseek.com/v1',\n  apiKey: process.env.DEEPSEEK_API_KEY,\n}))`
         case 'qwen':
-          return `import { wrapOpenAI } from '@optim/sdk'\nimport OpenAI from 'openai'\n\n// Qwen uses an OpenAI-compatible API (DashScope)\nconst qwen = wrapOpenAI(new OpenAI({\n  baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1',\n  apiKey: process.env.DASHSCOPE_API_KEY,\n}))`
+          return `import { wrapOpenAI } from '@optimai/sdk'\nimport OpenAI from 'openai'\n\n// Qwen uses an OpenAI-compatible API (DashScope)\nconst qwen = wrapOpenAI(new OpenAI({\n  baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1',\n  apiKey: process.env.DASHSCOPE_API_KEY,\n}))`
         case 'mistral':
-          return `import { wrapOpenAI } from '@optim/sdk'\nimport OpenAI from 'openai'\n\n// Mistral uses an OpenAI-compatible API\nconst mistral = wrapOpenAI(new OpenAI({\n  baseURL: 'https://api.mistral.ai/v1',\n  apiKey: process.env.MISTRAL_API_KEY,\n}))`
+          return `import { wrapOpenAI } from '@optimai/sdk'\nimport OpenAI from 'openai'\n\n// Mistral uses an OpenAI-compatible API\nconst mistral = wrapOpenAI(new OpenAI({\n  baseURL: 'https://api.mistral.ai/v1',\n  apiKey: process.env.MISTRAL_API_KEY,\n}))`
         case 'zhipu':
-          return `import { wrapOpenAI } from '@optim/sdk'\nimport OpenAI from 'openai'\n\n// Zhipu GLM uses an OpenAI-compatible API\nconst zhipu = wrapOpenAI(new OpenAI({\n  baseURL: 'https://open.bigmodel.cn/api/paas/v4',\n  apiKey: process.env.ZHIPU_API_KEY,\n}))`
+          return `import { wrapOpenAI } from '@optimai/sdk'\nimport OpenAI from 'openai'\n\n// Zhipu GLM uses an OpenAI-compatible API\nconst zhipu = wrapOpenAI(new OpenAI({\n  baseURL: 'https://open.bigmodel.cn/api/paas/v4',\n  apiKey: process.env.ZHIPU_API_KEY,\n}))`
         case 'moonshot':
-          return `import { wrapOpenAI } from '@optim/sdk'\nimport OpenAI from 'openai'\n\n// Moonshot (Kimi) uses an OpenAI-compatible API\nconst moonshot = wrapOpenAI(new OpenAI({\n  baseURL: 'https://api.moonshot.cn/v1',\n  apiKey: process.env.MOONSHOT_API_KEY,\n}))`
+          return `import { wrapOpenAI } from '@optimai/sdk'\nimport OpenAI from 'openai'\n\n// Moonshot (Kimi) uses an OpenAI-compatible API\nconst moonshot = wrapOpenAI(new OpenAI({\n  baseURL: 'https://api.moonshot.cn/v1',\n  apiKey: process.env.MOONSHOT_API_KEY,\n}))`
         case 'minimax':
-          return `import { wrapOpenAI } from '@optim/sdk'\nimport OpenAI from 'openai'\n\n// MiniMax uses an OpenAI-compatible API\nconst minimax = wrapOpenAI(new OpenAI({\n  baseURL: 'https://api.minimax.chat/v1',\n  apiKey: process.env.MINIMAX_API_KEY,\n}))`
+          return `import { wrapOpenAI } from '@optimai/sdk'\nimport OpenAI from 'openai'\n\n// MiniMax uses an OpenAI-compatible API\nconst minimax = wrapOpenAI(new OpenAI({\n  baseURL: 'https://api.minimax.chat/v1',\n  apiKey: process.env.MINIMAX_API_KEY,\n}))`
         case 'yi':
-          return `import { wrapOpenAI } from '@optim/sdk'\nimport OpenAI from 'openai'\n\n// 01.AI (Yi) uses an OpenAI-compatible API\nconst yi = wrapOpenAI(new OpenAI({\n  baseURL: 'https://api.lingyiwanwu.com/v1',\n  apiKey: process.env.YI_API_KEY,\n}))`
+          return `import { wrapOpenAI } from '@optimai/sdk'\nimport OpenAI from 'openai'\n\n// 01.AI (Yi) uses an OpenAI-compatible API\nconst yi = wrapOpenAI(new OpenAI({\n  baseURL: 'https://api.lingyiwanwu.com/v1',\n  apiKey: process.env.YI_API_KEY,\n}))`
         case 'groq':
-          return `import { wrapOpenAI } from '@optim/sdk'\nimport OpenAI from 'openai'\n\n// Groq uses an OpenAI-compatible API\nconst groq = wrapOpenAI(new OpenAI({\n  baseURL: 'https://api.groq.com/openai/v1',\n  apiKey: process.env.GROQ_API_KEY,\n}))`
+          return `import { wrapOpenAI } from '@optimai/sdk'\nimport OpenAI from 'openai'\n\n// Groq uses an OpenAI-compatible API\nconst groq = wrapOpenAI(new OpenAI({\n  baseURL: 'https://api.groq.com/openai/v1',\n  apiKey: process.env.GROQ_API_KEY,\n}))`
         case 'bedrock':
-          return `import { wrapBedrock } from '@optim/sdk'\nimport { BedrockRuntimeClient } from '@aws-sdk/client-bedrock-runtime'\n\nconst bedrock = wrapBedrock(new BedrockRuntimeClient())`
+          return `import { wrapBedrock } from '@optimai/sdk'\nimport { BedrockRuntimeClient } from '@aws-sdk/client-bedrock-runtime'\n\nconst bedrock = wrapBedrock(new BedrockRuntimeClient())`
         default:
           return ''
       }
     }).filter(Boolean)
 
     return {
-      installCommand: 'npm install @optim/sdk openai',
-      code: `import { initOptim } from '@optim/sdk'\n\n// Initialize Optim (call once at startup)\ninitOptim({ projectKey: '${projectKey}' })\n\n${wrappers[0] || ''}\n\n// Use your AI client as normal — telemetry is automatic`,
+      installCommand: 'npm install @optimai/sdk openai',
+      code: `import { initOptim } from '@optimai/sdk'\n\n// Initialize Optim (call once at startup)\ninitOptim({ projectKey: '${projectKey}' })\n\n${wrappers[0] || ''}\n\n// Use your AI client as normal — telemetry is automatic`,
     }
   }
 

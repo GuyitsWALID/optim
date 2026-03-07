@@ -110,7 +110,7 @@ function tokenizeLine(line: string, language: string): Token[] {
     // Identifiers and keywords
     if (/[a-zA-Z_$@]/.test(line[i])) {
       let word = ''
-      // Allow @ for decorators and / for paths like @optim/sdk
+      // Allow @ for decorators and / for paths like @optimai/sdk
       while (i < line.length && /[a-zA-Z0-9_$@/\-.]/.test(line[i])) {
         word += line[i]
         i++
@@ -119,7 +119,7 @@ function tokenizeLine(line: string, language: string): Token[] {
       if (keywords.has(word)) {
         tokens.push({ type: 'keyword', value: word })
       } else if (word[0] === '@' || word.includes('/')) {
-        // Module path like @optim/sdk
+        // Module path like @optimai/sdk
         tokens.push({ type: 'string', value: word })
       } else if (/^[A-Z]/.test(word)) {
         // PascalCase = type/class name
