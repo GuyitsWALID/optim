@@ -1,10 +1,19 @@
 {
   "name": "@optimai/sdk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Optim SDK - Track and optimize AI costs automatically",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GuyitsWALID/optim.git",
+    "directory": "packages/sdk"
+  },
+  "homepage": "https://github.com/GuyitsWALID/optim/tree/main/packages/sdk#readme",
+  "bugs": {
+    "url": "https://github.com/GuyitsWALID/optim/issues"
+  },
   "exports": {
     ".": {
       "import": {
@@ -17,12 +26,20 @@
       }
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json",
     "dev": "tsc -p tsconfig.json --watch"
   },
-  "keywords": ["ai", "llm", "cost-tracking", "openai", "optimization"],
+  "keywords": [
+    "ai",
+    "llm",
+    "cost-tracking",
+    "openai",
+    "optimization"
+  ],
   "license": "MIT",
   "devDependencies": {
     "typescript": "^5.3.0"

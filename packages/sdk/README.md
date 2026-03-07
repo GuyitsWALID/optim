@@ -16,7 +16,10 @@ npm install @optimai/sdk openai
 import OpenAI from 'openai'
 import { initOptim, wrapOpenAI } from '@optimai/sdk'
 
-initOptim({ projectKey: 'opt_proj_your_key_here' })
+initOptim({
+  projectKey: 'opt_proj_your_key_here',
+  baseUrl: 'https://optim.dev',
+})
 
 const openai = wrapOpenAI(new OpenAI())
 
@@ -34,7 +37,10 @@ Groq uses an OpenAI-compatible API, so just point the OpenAI client at Groq:
 import OpenAI from 'openai'
 import { initOptim, wrapOpenAI } from '@optimai/sdk'
 
-initOptim({ projectKey: 'opt_proj_your_key_here' })
+initOptim({
+  projectKey: 'opt_proj_your_key_here',
+  baseUrl: 'https://optim.dev',
+})
 
 const groq = wrapOpenAI(new OpenAI({
   baseURL: 'https://api.groq.com/openai/v1',
@@ -73,7 +79,10 @@ For providers without an OpenAI-compatible API, use `trackRequest` directly:
 ```typescript
 import { initOptim, trackRequest } from '@optimai/sdk'
 
-initOptim({ projectKey: 'opt_proj_your_key_here' })
+initOptim({
+  projectKey: 'opt_proj_your_key_here',
+  baseUrl: 'https://optim.dev',
+})
 
 trackRequest({
   provider: 'anthropic',
@@ -88,13 +97,21 @@ trackRequest({
 
 ```typescript
 initOptim({
-  projectKey: 'opt_proj_...',    // Required
-  baseUrl: 'https://optim.dev',  // API endpoint (default)
+  projectKey: 'opt_proj_...',    // Required — your project key
+  baseUrl: 'https://optim.dev',  // Required — Optim API endpoint (HTTPS only)
   batchSize: 10,                  // Events per batch (default: 10)
   flushInterval: 5000,            // Flush interval in ms (default: 5000)
   debug: true,                    // Enable debug logging to see SDK activity
 })
 ```
+
+## Security
+
+- **HTTPS enforced** — `baseUrl` must use HTTPS (`http://localhost` allowed for local development only)
+- **No hardcoded URLs** — you explicitly provide the API endpoint
+- **Input sanitization** — all event fields are validated and bounded before transmission
+- **Origin verification** — outbound requests are verified against the configured base URL origin
+- **Credential-free URLs** — `baseUrl` with embedded credentials is rejected
 
 ## Streaming Support
 

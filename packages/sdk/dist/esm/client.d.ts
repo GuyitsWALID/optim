@@ -1,8 +1,8 @@
 export interface OptimConfig {
     /** Project key (starts with opt_proj_) */
     projectKey: string;
-    /** Optim API base URL (default: https://optim.dev) */
-    baseUrl?: string;
+    /** Optim API base URL — required, e.g. 'https://optim.dev' */
+    baseUrl: string;
     /** Batch size before flushing (default: 10) */
     batchSize?: number;
     /** Max time in ms between flushes (default: 5000) */

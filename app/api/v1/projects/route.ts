@@ -149,7 +149,7 @@ function getSetupCode(
 
     return {
       installCommand: 'npm install @optimai/sdk openai',
-      code: `import { initOptim } from '@optimai/sdk'\n\n// Initialize Optim (call once at startup)\ninitOptim({ projectKey: '${projectKey}' })\n\n${wrappers[0] || ''}\n\n// Use your AI client as normal — telemetry is automatic`,
+      code: `import { initOptim } from '@optimai/sdk'\n\n// Initialize Optim (call once at startup)\ninitOptim({ projectKey: '${projectKey}', baseUrl: 'https://optim.dev' })\n\n${wrappers[0] || ''}\n\n// Use your AI client as normal — telemetry is automatic`,
     }
   }
 
