@@ -108,14 +108,14 @@ export default function ProjectsPage() {
 
       {/* Search */}
       {projects.length > 0 && (
-        <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--foreground-muted)] pointer-events-none" />
+        <div className="flex h-12 items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 transition-all duration-200 focus-within:border-[var(--accent)] focus-within:ring-2 focus-within:ring-[rgba(64,168,62,0.2)]">
+          <Search className="h-4 w-4 shrink-0 text-[var(--foreground-muted)]" />
           <input
             type="text"
             placeholder="Search projects..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="input-field h-12 w-full pl-10 pr-4 text-sm leading-6"
+            className="min-w-0 flex-1 bg-transparent text-sm text-[var(--foreground)] placeholder:text-[var(--foreground-muted)] outline-none"
           />
         </div>
       )}
