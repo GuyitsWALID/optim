@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 
-export default function CheckoutRedirectPage() {
+function CheckoutRedirectContent() {
   const searchParams = useSearchParams()
   const [error, setError] = useState('')
 
@@ -45,13 +45,28 @@ export default function CheckoutRedirectPage() {
   }, [searchParams])
 
   return (
+    <div className="text-center">
+      <div className="w-8 h-8 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+      <p className="text-[var(--foreground-secondary)]">
+        {error || 'Setting up your checkout...'}
+      </p>
+    </div>
+  )
+}
+
+export default function CheckoutRedirectPage() {
+  return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
-      <div className="text-center">
-        <div className="w-8 h-8 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-[var(--foreground-secondary)]">
-          {error || 'Setting up your checkout...'}
-        </p>
-      </div>
+      <Suspense
+        fallback={
+          <div className="text-center">
+            <div className="w-8 h-8 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-[var(--foreground-secondary)]">Loading...</p>
+          </div>
+        }
+      >
+        <CheckoutRedirectContent />
+      </Suspense>
     </div>
   )
 }
