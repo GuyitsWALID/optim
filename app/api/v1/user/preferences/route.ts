@@ -29,6 +29,11 @@ export async function GET(request: Request) {
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
+      include: {
+        organization: {
+          select: { tier: true },
+        },
+      },
     })
 
     if (!user || !user.onboardingCompleted) {
@@ -40,6 +45,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       preferences,
       organizationId: user.organizationId,
+      tier: user.organization?.tier || 'FREE',
       onboardingCompleted: true,
     })
   } catch (error) {

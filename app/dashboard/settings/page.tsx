@@ -1,13 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { User, Save, Loader2 } from 'lucide-react'
+import { User, Save, Loader2, CreditCard, ArrowUpRight } from 'lucide-react'
 import { useSession } from '@/lib/useSession'
 import { useDashboardStore } from '@/lib/store'
 
 export default function SettingsPage() {
   const { user, loading: sessionLoading } = useSession()
-  const { userPreferences } = useDashboardStore()
+  const { userPreferences, billing, fetchBilling, loadingBilling } = useDashboardStore()
 
   // Profile form state - populated from real user data
   const [firstName, setFirstName] = useState('')
@@ -29,6 +29,10 @@ export default function SettingsPage() {
       setCompany(userPreferences.industry)
     }
   }, [user, userPreferences])
+
+  useEffect(() => {
+    fetchBilling()
+  }, [fetchBilling])
 
   function getInitials(name: string): string {
     return name
@@ -63,6 +67,29 @@ export default function SettingsPage() {
       setTimeout(() => setSaveMessage(''), 3000)
     }
   }
+
+  const handleUpgradeToPro = async (billingCycle: 'monthly' | 'annual') => {
+    try {
+      const res = await fetch('/api/v1/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ billingCycle }),
+      })
+
+      const data = await res.json()
+      if (res.ok && data.checkoutUrl) {
+        window.location.href = data.checkoutUrl
+      }
+    } catch (error) {
+      console.error('Upgrade failed:', error)
+    }
+  }
+
+  const requestPct =
+    billing?.limits.requestsPerMonth && billing.limits.requestsPerMonth > 0
+      ? Math.min(100, (billing.usage.requestsThisMonth / billing.limits.requestsPerMonth) * 100)
+      : 0
 
   return (
     <div className="space-y-6">
@@ -207,6 +234,84 @@ export default function SettingsPage() {
               {saving ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
+        )}
+      </div>
+
+      <div
+        className="p-6 rounded-xl"
+        style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
+      >
+        <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
+          <CreditCard className="w-5 h-5" /> Billing
+        </h2>
+
+        {loadingBilling ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-6 h-6 animate-spin" style={{ color: 'var(--foreground-muted)' }} />
+          </div>
+        ) : billing ? (
+          <div className="space-y-5">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm" style={{ color: 'var(--foreground-muted)' }}>Current plan</p>
+                <p className="text-xl font-bold">{billing.tier}</p>
+                {billing.subscription?.status && (
+                  <p className="text-sm" style={{ color: 'var(--foreground-muted)' }}>
+                    Subscription status: {billing.subscription.status}
+                  </p>
+                )}
+              </div>
+              {billing.tier === 'FREE' ? (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleUpgradeToPro('monthly')}
+                    className="px-4 py-2 rounded-lg text-sm font-medium"
+                    style={{ background: 'var(--accent)', color: '#fff' }}
+                  >
+                    Upgrade Monthly
+                  </button>
+                  <button
+                    onClick={() => handleUpgradeToPro('annual')}
+                    className="px-4 py-2 rounded-lg text-sm font-medium border"
+                    style={{ borderColor: 'var(--border)' }}
+                  >
+                    Upgrade Annual
+                  </button>
+                </div>
+              ) : billing.manageUrl ? (
+                <a
+                  href={billing.manageUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium border"
+                  style={{ borderColor: 'var(--border)' }}
+                >
+                  Manage Subscription <ArrowUpRight className="w-4 h-4" />
+                </a>
+              ) : null}
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between text-sm mb-2">
+                <span style={{ color: 'var(--foreground-muted)' }}>Requests this month</span>
+                <span>
+                  {billing.usage.requestsThisMonth.toLocaleString()}
+                  {billing.limits.requestsPerMonth ? ` / ${billing.limits.requestsPerMonth.toLocaleString()}` : ''}
+                </span>
+              </div>
+              <div className="w-full h-2 rounded-full" style={{ background: 'var(--surface-secondary)' }}>
+                <div
+                  className="h-2 rounded-full"
+                  style={{
+                    width: `${requestPct}%`,
+                    background: requestPct > 90 ? 'var(--error)' : requestPct >= 70 ? 'var(--warning)' : 'var(--success, #22c55e)',
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm" style={{ color: 'var(--foreground-muted)' }}>Billing data unavailable.</p>
         )}
       </div>
     </div>

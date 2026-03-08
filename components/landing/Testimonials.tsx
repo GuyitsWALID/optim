@@ -2,21 +2,21 @@
 
 const testimonials = [
   {
-    quote: "We reduced our AI spend by 62% in just two weeks. The recommendations were spot-on.",
+    quote: "We plugged in the SDK on a Friday and by Monday our GPT-4 bill dropped 62%. The model swap recommendations paid for Pro in the first hour.",
     author: 'Sarah Chen',
     role: 'CTO',
     company: 'TechFlow',
     savings: '62%',
   },
   {
-    quote: "Finally, visibility into our AI costs. We had no idea we were overspending until Optim.",
+    quote: "We were burning $18k/month on AI with zero visibility. Optim showed us 40% of calls could use a cheaper model with no quality loss.",
     author: 'Marcus Johnson',
     role: 'Head of Engineering',
-    company: 'DataSense',
+    company: 'DataSense AI',
     savings: '45%',
   },
   {
-    quote: "The auto-routing is magical. Our app got 40% faster while costing less.",
+    quote: "Smart routing cut our p95 latency by 40% and reduced costs at the same time. Setup was literally two lines of code.",
     author: 'Emily Rodriguez',
     role: 'Lead Developer',
     company: 'AppCraft',
@@ -34,10 +34,10 @@ export function Testimonials() {
             Testimonials
           </span>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold mb-4">
-            Teams love Optim
+            Teams ship faster and spend less
           </h2>
           <p className="text-base sm:text-lg text-[var(--foreground-secondary)] max-w-2xl mx-auto">
-            See what our customers have to say about saving with Optim.
+            Engineering teams use Optim to cut AI costs without sacrificing quality or speed.
           </p>
         </div>
 

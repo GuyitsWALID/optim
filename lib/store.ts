@@ -81,13 +81,41 @@ export interface OnboardingData {
   monthlySpend?: string
 }
 
+export type TierName = 'FREE' | 'PRO' | 'ENTERPRISE'
+
+export interface BillingData {
+  tier: TierName
+  limits: {
+    projects: number | null
+    requestsPerMonth: number | null
+    retentionDays: number | null
+    teamSeats: number | null
+  }
+  usage: {
+    projects: number
+    requestsThisMonth: number
+  }
+  subscription: {
+    status: string
+    periodStart: string | null
+    periodEnd: string | null
+    whopPlanId: string
+  } | null
+  manageUrl: string | null
+}
+
 interface DashboardState {
   // Organization
   organizationId: string | null
 
   // User preferences (from onboarding)
   userPreferences: OnboardingData | null
+  tier: TierName
   loadingPreferences: boolean
+
+  // Billing
+  billing: BillingData | null
+  loadingBilling: boolean
 
   // Projects
   projects: Project[]
@@ -119,6 +147,7 @@ interface DashboardState {
   setOrganizationId: (id: string) => void
   setUserPreferences: (prefs: OnboardingData | null) => void
   fetchUserPreferences: () => Promise<void>
+  fetchBilling: () => Promise<void>
   setSelectedProjectId: (id: string | null) => void
   setPeriod: (period: 'day' | 'week' | 'month' | 'year') => void
   fetchProjects: () => Promise<void>
@@ -133,7 +162,10 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   // Initial state
   organizationId: null,
   userPreferences: null,
+  tier: 'FREE',
   loadingPreferences: false,
+  billing: null,
+  loadingBilling: false,
   projects: [],
   selectedProjectId: null,
   loadingProjects: false,
@@ -162,6 +194,9 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       const data = await res.json()
       if (data.preferences || data.onboardingCompleted) {
         set({ userPreferences: data.preferences })
+        if (data.tier) {
+          set({ tier: data.tier as TierName })
+        }
         if (data.organizationId) {
           set({ organizationId: data.organizationId })
         }
@@ -170,6 +205,24 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       console.error('Error fetching user preferences:', error)
     } finally {
       set({ loadingPreferences: false })
+    }
+  },
+
+  fetchBilling: async () => {
+    set({ loadingBilling: true })
+    try {
+      const res = await fetch('/api/v1/billing')
+      const data = await res.json()
+      if (data?.tier) {
+        set({
+          billing: data as BillingData,
+          tier: data.tier as TierName,
+        })
+      }
+    } catch (error) {
+      console.error('Error fetching billing:', error)
+    } finally {
+      set({ loadingBilling: false })
     }
   },
 

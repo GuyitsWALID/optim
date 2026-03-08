@@ -1,24 +1,37 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Zap, Settings, AlertTriangle, Check, X } from 'lucide-react'
+import { Zap, Settings, AlertTriangle, Check, X, ArrowUpRight } from 'lucide-react'
 import { useDashboardStore } from '@/lib/store'
 
 export function AutoOptimizeToggle({ projectId }: { projectId?: string }) {
-  const { autoOptimizeConfig, loadingAutoOptimize, toggleAutoOptimize, fetchAutoOptimize } = useDashboardStore()
+  const {
+    autoOptimizeConfig,
+    loadingAutoOptimize,
+    toggleAutoOptimize,
+    fetchAutoOptimize,
+    tier,
+    fetchBilling,
+  } = useDashboardStore()
   const [isConfiguring, setIsConfiguring] = useState(false)
   const [savingsTarget, setSavingsTarget] = useState(autoOptimizeConfig?.maxSavingsTarget || 0.3)
   const [qualityTolerance, setQualityTolerance] = useState(autoOptimizeConfig?.qualityTolerance || 'moderate')
 
   useEffect(() => {
+    fetchBilling()
+
+    if (tier === 'FREE') return
+
     if (projectId) {
       fetchAutoOptimize(projectId)
     }
-  }, [projectId, fetchAutoOptimize])
+  }, [projectId, fetchAutoOptimize, tier, fetchBilling])
 
   const isEnabled = autoOptimizeConfig?.isEnabled ?? false
 
   const handleToggle = async () => {
+    if (tier === 'FREE') return
+
     if (projectId) {
       await toggleAutoOptimize(projectId, !isEnabled)
     }
@@ -42,6 +55,20 @@ export function AutoOptimizeToggle({ projectId }: { projectId?: string }) {
 
       {loadingAutoOptimize ? (
         <div className="text-center py-8 text-[var(--foreground-muted)]">Loading...</div>
+      ) : tier === 'FREE' ? (
+        <div className="p-4 rounded-lg border border-[var(--accent)]/30 bg-[var(--accent)]/5">
+          <p className="font-medium mb-1">Pro feature: Auto-Optimization</p>
+          <p className="text-sm text-[var(--foreground-muted)] mb-3">
+            Upgrade to Pro to enable smart routing to lower-cost models.
+          </p>
+          <a
+            href="/dashboard/settings"
+            className="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium"
+            style={{ background: 'var(--accent)', color: '#fff' }}
+          >
+            Upgrade <ArrowUpRight className="w-4 h-4" />
+          </a>
+        </div>
       ) : (
         <>
           <div className="flex items-center justify-between p-4 bg-[var(--surface-secondary)] rounded-lg">

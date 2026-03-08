@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireSessionWithOrg, generateProjectKey } from '@/lib/api-auth'
+import { checkUsageLimit } from '@/lib/tier-limits'
 
 // GET /api/v1/projects — List all projects for the user's organization
 export async function GET(request: Request) {
@@ -49,8 +50,24 @@ export async function GET(request: Request) {
 
 // POST /api/v1/projects — Create a new project
 export async function POST(request: Request) {
-  const { organizationId, response } = await requireSessionWithOrg(request)
+  const { organizationId, tier, response } = await requireSessionWithOrg(request)
   if (response) return response
+
+  const projectCount = await prisma.project.count({
+    where: { organizationId: organizationId! },
+  })
+
+  const usageCheck = checkUsageLimit(tier!, 'projects', projectCount)
+  if (!usageCheck.allowed) {
+    return NextResponse.json(
+      {
+        error: 'Project limit reached for your current plan',
+        limit: usageCheck.limit,
+        currentUsage: projectCount,
+      },
+      { status: 403 }
+    )
+  }
 
   const body = await request.json()
   const { name, description, providers, models, sdkPlatform } = body

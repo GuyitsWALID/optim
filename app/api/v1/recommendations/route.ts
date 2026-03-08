@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { generateRecommendations } from '@/lib/groq-client'
-import { requireSessionWithOrg } from '@/lib/api-auth'
+import { requireSessionWithOrg, requireTier } from '@/lib/api-auth'
+import { Tier } from '@prisma/client'
 
 // POST /api/v1/recommendations — Generate AI recommendations (project-scoped)
 export async function POST(request: Request) {
-  const { organizationId, response } = await requireSessionWithOrg(request)
+  const { organizationId, tier, response } = await requireSessionWithOrg(request)
   if (response) return response
+
+  const tierResponse = requireTier(tier!, Tier.PRO)
+  if (tierResponse) return tierResponse
 
   const body = await request.json()
   const { projectId } = body
@@ -157,8 +161,11 @@ export async function POST(request: Request) {
 
 // GET /api/v1/recommendations — Get stored recommendations (project-scoped)
 export async function GET(request: Request) {
-  const { organizationId, response } = await requireSessionWithOrg(request)
+  const { organizationId, tier, response } = await requireSessionWithOrg(request)
   if (response) return response
+
+  const tierResponse = requireTier(tier!, Tier.PRO)
+  if (tierResponse) return tierResponse
 
   const { searchParams } = new URL(request.url)
   const projectId = searchParams.get('projectId')

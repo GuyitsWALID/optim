@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Sparkles, ChevronDown, ChevronUp, Check, X, Lightbulb, TrendingDown, Zap, Layers, Scissors, RefreshCw, Filter, Trash2, History, DollarSign, FolderKanban } from 'lucide-react'
+import { Sparkles, ChevronDown, ChevronUp, Check, X, Lightbulb, TrendingDown, Zap, Layers, Scissors, RefreshCw, Filter, Trash2, History, DollarSign, FolderKanban, ArrowUpRight } from 'lucide-react'
 import { useDashboardStore, Recommendation } from '@/lib/store'
 
 const typeIcons: Record<string, typeof Sparkles> = {
@@ -27,7 +27,7 @@ const priorityColors: Record<string, string> = {
 }
 
 export default function RecommendationsPage() {
-  const { recommendations, loadingRecommendations, fetchRecommendations, projects, fetchProjects } = useDashboardStore()
+  const { recommendations, loadingRecommendations, fetchRecommendations, projects, fetchProjects, tier, fetchBilling } = useDashboardStore()
   const [expanded, setExpanded] = useState<string | null>(null)
   const [generating, setGenerating] = useState(false)
   const [typeFilter, setTypeFilter] = useState<string>('all')
@@ -41,7 +41,10 @@ export default function RecommendationsPage() {
   useEffect(() => {
     fetchProjects()
     fetchRecommendations()
+    fetchBilling()
   }, [])
+
+  const isFreeTier = tier === 'FREE'
 
   const handleGenerate = async () => {
     setGenerating(true)
@@ -115,13 +118,33 @@ export default function RecommendationsPage() {
         <p className="text-[var(--foreground-muted)]">AI-powered recommendations to optimize your costs</p>
         <button
           onClick={handleGenerate}
-          disabled={generating}
+          disabled={generating || isFreeTier}
           className="btn-primary flex items-center gap-2"
         >
           <Sparkles className={`w-5 h-5 ${generating ? 'animate-spin' : ''}`} />
-          {generating ? 'Analyzing...' : 'Generate Recommendations'}
+          {isFreeTier ? 'Upgrade to Pro to Generate' : generating ? 'Analyzing...' : 'Generate Recommendations'}
         </button>
       </div>
+
+      {isFreeTier && (
+        <div className="bento-card border border-[var(--accent)]/30 bg-[var(--accent)]/5">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h3 className="text-lg font-semibold">Pro feature: AI recommendations</h3>
+              <p className="text-sm text-[var(--foreground-muted)]">
+                Upgrade to Pro to unlock weekly cost recommendations and implementation guidance.
+              </p>
+            </div>
+            <a
+              href="/dashboard/settings"
+              className="inline-flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium"
+              style={{ background: 'var(--accent)', color: '#fff' }}
+            >
+              Upgrade <ArrowUpRight className="w-4 h-4" />
+            </a>
+          </div>
+        </div>
+      )}
 
       {/* Savings Banner */}
       {stats.potentialSavings > 0 && (

@@ -26,6 +26,8 @@ export default function DashboardPage() {
     fetchRecommendations,
     fetchUserPreferences,
     userPreferences,
+    billing,
+    fetchBilling,
   } = useDashboardStore()
 
   useEffect(() => {
@@ -45,6 +47,7 @@ export default function DashboardPage() {
           fetchCosts()
           fetchProjects()
           fetchRecommendations()
+          fetchBilling()
         })
       } catch (error) {
         console.error('Error checking onboarding:', error)
@@ -137,6 +140,38 @@ export default function DashboardPage() {
           icon="clock"
         />
       </div>
+
+      {billing && (
+        <div className="bento-card">
+          <div className="flex items-center justify-between text-sm mb-2">
+            <span style={{ color: 'var(--foreground-muted)' }}>
+              Monthly usage ({billing.tier})
+            </span>
+            <span>
+              {billing.usage.requestsThisMonth.toLocaleString()}
+              {billing.limits.requestsPerMonth ? ` / ${billing.limits.requestsPerMonth.toLocaleString()} requests` : ' requests'}
+            </span>
+          </div>
+          {billing.limits.requestsPerMonth ? (
+            <div className="w-full h-3 rounded-full" style={{ background: 'var(--surface-secondary)' }}>
+              {(() => {
+                const pct = Math.min(100, (billing.usage.requestsThisMonth / billing.limits.requestsPerMonth) * 100)
+                const color = pct > 90 ? 'var(--error)' : pct >= 70 ? 'var(--warning)' : 'var(--success, #22c55e)'
+                return (
+                  <div
+                    className="h-3 rounded-full transition-all"
+                    style={{ width: `${pct}%`, background: color }}
+                  />
+                )
+              })()}
+            </div>
+          ) : (
+            <p className="text-xs" style={{ color: 'var(--foreground-muted)' }}>
+              Unlimited requests on your current plan.
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

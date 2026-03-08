@@ -1,5 +1,7 @@
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { hasMinimumTier } from '@/lib/tier-limits'
+import { Tier } from '@prisma/client'
 import { NextResponse } from 'next/server'
 
 /**
@@ -59,13 +61,14 @@ export async function getUserOrganizationId(userId: string): Promise<string | nu
  */
 export async function requireSessionWithOrg(request: Request) {
   const { session, response } = await requireSession(request)
-  if (response) return { session: null, organizationId: null, response }
+  if (response) return { session: null, organizationId: null, tier: null, response }
 
   const organizationId = await getUserOrganizationId(session!.user.id)
   if (!organizationId) {
     return {
       session: null,
       organizationId: null,
+      tier: null,
       response: NextResponse.json(
         { error: 'No organization found. Complete onboarding first.' },
         { status: 403 }
@@ -73,7 +76,36 @@ export async function requireSessionWithOrg(request: Request) {
     }
   }
 
-  return { session, organizationId, response: null }
+  const organization = await prisma.organization.findUnique({
+    where: { id: organizationId },
+    select: { tier: true },
+  })
+
+  if (!organization) {
+    return {
+      session: null,
+      organizationId: null,
+      tier: null,
+      response: NextResponse.json({ error: 'Organization not found' }, { status: 404 }),
+    }
+  }
+
+  return { session, organizationId, tier: organization.tier, response: null }
+}
+
+export function requireTier(currentTier: Tier, minimumTier: Tier) {
+  if (hasMinimumTier(currentTier, minimumTier)) {
+    return null
+  }
+
+  return NextResponse.json(
+    {
+      error: `This feature requires ${minimumTier} tier or higher`,
+      requiredTier: minimumTier,
+      currentTier,
+    },
+    { status: 403 }
+  )
 }
 
 /**

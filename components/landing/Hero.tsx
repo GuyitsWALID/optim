@@ -25,41 +25,41 @@ export function Hero() {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--accent)]"></span>
             </span>
             <span className="text-xs sm:text-sm font-modern text-[var(--foreground-secondary)]">
-              Save up to 85% on AI costs
+              Trusted by AI-first engineering teams
             </span>
           </div>
 
-          {/* Main heading - using different fonts */}
+          {/* Main heading */}
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold leading-[1.1] mb-5 sm:mb-6 animate-slide-up tracking-tight">
-            Reduce AI{' '}
+            Stop Overpaying for{' '}
             <span className="relative">
-              <span className="relative z-10">Costs</span>
+              <span className="relative z-10">AI</span>
               <span className="absolute bottom-2 left-0 right-0 h-3 bg-[var(--accent)]/20 -z-10" />
             </span>{' '}
-            by <span className="gradient-text">85%</span>
+            — Cut Costs by <span className="gradient-text">Up to 85%</span>
           </h1>
 
-          {/* Subheading - different font */}
+          {/* Subheading */}
           <p className="text-base sm:text-lg md:text-xl text-[var(--foreground-secondary)] mb-8 sm:mb-10 max-w-2xl mx-auto animate-slide-up font-modern leading-relaxed" style={{ animationDelay: '0.1s' }}>
-            The intelligent platform that tracks, analyzes, and automatically optimizes your LLM spending across all providers.
+            Optim tracks every LLM call across OpenAI, Anthropic, Groq, and 50+ providers — then uses AI to recommend cheaper models, smarter routing, and automatic optimizations so you ship faster and spend less.
           </p>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-            <Link href="/dashboard" className="btn-primary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto font-modern">
-              Get Started Free
+            <Link href="/sign-up" className="btn-primary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto font-modern">
+              Start Free — No Credit Card
             </Link>
-            <Link href="#demo" className="btn-secondary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto font-modern">
-              View Demo
+            <Link href="#how-it-works" className="btn-secondary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto font-modern">
+              See How It Works
             </Link>
           </div>
 
           {/* Stats row */}
           <div className="mt-10 sm:mt-16 grid grid-cols-3 gap-2 sm:gap-4 max-w-lg mx-auto animate-fade-in" style={{ animationDelay: '0.3s' }}>
             {[
-              { value: '85%', label: 'Max Savings' },
-              { value: '50+', label: 'Providers' },
-              { value: '10K+', label: 'Users' },
+              { value: '85%', label: 'Cost Reduction' },
+              { value: '50+', label: 'AI Providers' },
+              { value: '2 min', label: 'Setup Time' },
             ].map((stat, i) => (
               <div key={i} className="text-center p-3 sm:p-4 rounded-xl bg-[var(--surface)] border border-[var(--border)]">
                 <p className="text-xl sm:text-2xl md:text-3xl font-display font-bold text-[var(--accent)]">{stat.value}</p>
@@ -76,7 +76,7 @@ export function Hero() {
             <svg className="w-4 h-4 text-[var(--accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
             </svg>
-            <span className="text-sm font-modern">AI Optimization Active</span>
+            <span className="text-sm font-modern">Smart Routing Active</span>
           </div>
           <div className="hidden sm:flex absolute -bottom-6 -right-6 px-4 py-2 bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow-lg animate-fade-in items-center gap-2">
             <svg className="w-4 h-4 text-[var(--success)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -92,7 +92,7 @@ export function Hero() {
               <div className="w-3 h-3 rounded-full bg-yellow-500" />
               <div className="w-3 h-3 rounded-full bg-green-500" />
               <div className="ml-4 flex items-center gap-2 text-xs text-[var(--foreground-muted)] font-mono">
-                <span>optim-dashboard</span>
+                <span>optim.dev/dashboard</span>
               </div>
             </div>
             {/* Mock dashboard content */}

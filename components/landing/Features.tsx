@@ -7,19 +7,19 @@ const features = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
       </svg>
     ),
-    title: 'Real-time Tracking',
-    description: 'See every API call, token, and cent as it happens. Detailed breakdown by model, provider, and endpoint.',
+    title: 'Real-time Cost Tracking',
+    description: 'Monitor every API call, token, and dollar in real time. Get per-model, per-provider, and per-project breakdowns so you always know where your budget goes.',
     size: 'large',
     gradient: 'from-emerald-500/20 to-teal-500/20',
   },
   {
     icon: (
       <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 003 5.818V4.774a2.25 2.25 0 00-.659-1.591L3 3.104m0 0l5.432 5.432m0 0L12 17.25m0 0l3.25-3.25M12 3v6.75" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
       </svg>
     ),
     title: 'AI-Powered Recommendations',
-    description: 'Get intelligent suggestions to reduce costs with confidence scores and one-click implementation.',
+    description: 'Optim analyzes your usage patterns and recommends specific model swaps, prompt optimizations, and caching strategies — each with a confidence score and estimated savings.',
     size: 'medium',
     gradient: 'from-green-500/20 to-emerald-500/20',
   },
@@ -30,7 +30,7 @@ const features = [
       </svg>
     ),
     title: 'Smart Routing',
-    description: 'Route queries to optimal models automatically based on complexity.',
+    description: 'Automatically route queries to the optimal model based on complexity, latency, and cost — without changing a single line of your application code.',
     size: 'small',
     gradient: 'from-teal-500/20 to-cyan-500/20',
   },
@@ -41,7 +41,7 @@ const features = [
       </svg>
     ),
     title: 'Industry Benchmarking',
-    description: 'Compare your costs against anonymized industry averages.',
+    description: 'See how your AI spend compares to anonymized peers in your industry. Spot where you are overpaying relative to similar teams and workloads.',
     size: 'medium',
     gradient: 'from-cyan-500/20 to-blue-500/20',
   },
@@ -51,19 +51,19 @@ const features = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
       </svg>
     ),
-    title: 'Alerts & Budgets',
-    description: 'Set spending limits and get notified before costs spiral.',
+    title: 'Alerts & Budget Caps',
+    description: 'Set per-project or org-wide spending limits with real-time alerts. Get notified the moment costs approach your threshold — never get surprised by a runaway bill.',
     size: 'small',
     gradient: 'from-amber-500/20 to-yellow-500/20',
   },
   {
     icon: (
       <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
       </svg>
     ),
-    title: 'Enterprise Security',
-    description: 'SOC 2 compliant, encryption at rest, and granular access controls.',
+    title: 'Drop-in SDK',
+    description: 'Two lines of code. Wrap your existing OpenAI-compatible client with wrapOpenAI() and Optim handles the rest — zero vendor lock-in, works with 50+ providers.',
     size: 'small',
     gradient: 'from-slate-500/20 to-gray-500/20',
   },
@@ -79,10 +79,10 @@ export function Features() {
             Features
           </span>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold mb-4">
-            Everything you need to optimize
+            Everything you need to cut AI costs
           </h2>
           <p className="text-base sm:text-lg text-[var(--foreground-secondary)] max-w-2xl mx-auto">
-            Powerful tools to understand, track, and reduce your AI spending.
+            From real-time visibility to AI-driven optimization — the complete toolkit for teams serious about controlling LLM spend.
           </p>
         </div>
 

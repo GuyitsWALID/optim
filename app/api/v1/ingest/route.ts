@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { calculateCost } from '@/lib/model-pricing'
+import { checkUsageLimit } from '@/lib/tier-limits'
 
 interface IngestEvent {
   provider: string
@@ -48,7 +49,7 @@ export async function POST(request: Request) {
     // Look up the project
     const project = await prisma.project.findUnique({
       where: { projectKey },
-      select: { id: true },
+      select: { id: true, organizationId: true, organization: { select: { tier: true } } },
     })
 
     if (!project) {
@@ -73,6 +74,35 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: 'Maximum 100 events per request' },
         { status: 400 }
+      )
+    }
+
+    const monthStart = new Date()
+    monthStart.setDate(1)
+    monthStart.setHours(0, 0, 0, 0)
+
+    const currentMonthlyUsage = await prisma.request.count({
+      where: {
+        project: { organizationId: project.organizationId },
+        createdAt: { gte: monthStart },
+      },
+    })
+
+    const usageCheck = checkUsageLimit(
+      project.organization.tier,
+      'requestsPerMonth',
+      currentMonthlyUsage,
+      events.length
+    )
+
+    if (!usageCheck.allowed) {
+      return NextResponse.json(
+        {
+          error: 'Monthly request limit exceeded for your current plan',
+          limit: usageCheck.limit,
+          currentUsage: currentMonthlyUsage,
+        },
+        { status: 429 }
       )
     }
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { TrendingUp, FolderKanban, Cpu, Globe, Award, ArrowUpDown, Info } from 'lucide-react'
+import { TrendingUp, FolderKanban, Cpu, Globe, Award, ArrowUpDown, Info, ArrowUpRight } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   ScatterChart, Scatter, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
@@ -15,7 +15,7 @@ type Tab = 'projects' | 'models' | 'providers' | 'public'
 const CHART_COLORS = ['#40A83E', '#6366f1', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#06b6d4', '#84cc16']
 
 export default function BenchmarksPage() {
-  const { projects, fetchProjects, costByModel, costByProvider, fetchCosts, period } = useDashboardStore()
+  const { projects, fetchProjects, costByModel, costByProvider, fetchCosts, period, tier, fetchBilling } = useDashboardStore()
   const [tab, setTab] = useState<Tab>('projects')
   const [sortBy, setSortBy] = useState<string>('cost')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
@@ -23,7 +23,10 @@ export default function BenchmarksPage() {
   useEffect(() => {
     fetchProjects()
     fetchCosts()
+    fetchBilling()
   }, [])
+
+  const isFreeTier = tier === 'FREE'
 
   const tabs: { id: Tab; label: string; icon: typeof FolderKanban }[] = [
     { id: 'projects', label: 'Projects', icon: FolderKanban },
@@ -130,8 +133,33 @@ export default function BenchmarksPage() {
         })}
       </div>
 
+      {isFreeTier && tab !== 'public' && (
+        <div className="bento-card border border-[var(--accent)]/30 bg-[var(--accent)]/5 flex items-center justify-between gap-4">
+          <div>
+            <h3 className="font-semibold">Pro feature: Benchmarking</h3>
+            <p className="text-sm text-[var(--foreground-muted)]">Upgrade to Pro to compare projects, models, and providers.</p>
+          </div>
+          <a
+            href="/dashboard/settings"
+            className="inline-flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium"
+            style={{ background: 'var(--accent)', color: '#fff' }}
+          >
+            Upgrade <ArrowUpRight className="w-4 h-4" />
+          </a>
+        </div>
+      )}
+
+      {isFreeTier && tab !== 'public' && (
+        <div className="bento-card text-center py-12">
+          <Award className="w-12 h-12 mx-auto mb-3 text-[var(--foreground-muted)]" />
+          <p className="text-[var(--foreground-muted)]">
+            Switch to Public Benchmarks or upgrade to Pro for private benchmarking.
+          </p>
+        </div>
+      )}
+
       {/* ════════ Projects Tab ════════ */}
-      {tab === 'projects' && (
+      {tab === 'projects' && !isFreeTier && (
         <div className="space-y-6">
           {projectData.length === 0 ? (
             <div className="bento-card text-center py-16">
@@ -215,7 +243,7 @@ export default function BenchmarksPage() {
       )}
 
       {/* ════════ Models Tab ════════ */}
-      {tab === 'models' && (
+      {tab === 'models' && !isFreeTier && (
         <div className="space-y-6">
           {modelData.length === 0 ? (
             <div className="bento-card text-center py-16">
@@ -323,7 +351,7 @@ export default function BenchmarksPage() {
       )}
 
       {/* ════════ Providers Tab ════════ */}
-      {tab === 'providers' && (
+      {tab === 'providers' && !isFreeTier && (
         <div className="space-y-6">
           {providerData.length === 0 ? (
             <div className="bento-card text-center py-16">

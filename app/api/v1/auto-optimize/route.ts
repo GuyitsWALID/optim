@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { requireSessionWithOrg } from '@/lib/api-auth'
+import { requireSessionWithOrg, requireTier } from '@/lib/api-auth'
+import { Tier } from '@prisma/client'
 
 // GET /api/v1/auto-optimize?projectId=... — Get auto-optimize config for a project
 export async function GET(request: Request) {
-  const { response } = await requireSessionWithOrg(request)
+  const { tier, response } = await requireSessionWithOrg(request)
   if (response) return response
+
+  const tierResponse = requireTier(tier!, Tier.PRO)
+  if (tierResponse) return tierResponse
 
   const { searchParams } = new URL(request.url)
   const projectId = searchParams.get('projectId')
@@ -35,8 +39,11 @@ export async function GET(request: Request) {
 
 // PUT /api/v1/auto-optimize — Update auto-optimize config for a project
 export async function PUT(request: Request) {
-  const { response } = await requireSessionWithOrg(request)
+  const { tier, response } = await requireSessionWithOrg(request)
   if (response) return response
+
+  const tierResponse = requireTier(tier!, Tier.PRO)
+  if (tierResponse) return tierResponse
 
   const body = await request.json()
   const { projectId, isEnabled, maxSavingsTarget, qualityTolerance, excludedEndpoints, routingRules } = body

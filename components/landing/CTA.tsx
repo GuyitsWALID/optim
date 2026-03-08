@@ -14,18 +14,18 @@ export function CTA() {
 
           <div className="relative z-10">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold mb-4">
-              Start Optimizing Today
+              Stop guessing. Start optimizing.
             </h2>
             <p className="text-base sm:text-lg text-[var(--foreground-secondary)] mb-8 max-w-xl mx-auto">
-              Join thousands of teams saving up to 85% on their AI costs.
-              No credit card required.
+              Two lines of code. Real-time cost visibility. AI-powered savings.
+              Free forever on the starter plan — no credit card required.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-              <Link href="/dashboard" className="btn-primary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto">
-                Get Started Free
+              <Link href="/sign-up" className="btn-primary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto">
+                Start Free
               </Link>
-              <Link href="#demo" className="btn-secondary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto">
-                Talk to Sales
+              <Link href="#pricing" className="btn-secondary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto">
+                View Pricing
               </Link>
             </div>
           </div>

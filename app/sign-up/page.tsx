@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { createAuthClient } from 'better-auth/react'
 
 let authClient: ReturnType<typeof createAuthClient> | null = null
@@ -16,6 +17,27 @@ function getAuthClient() {
   return authClient
 }
 
+async function redirectToCheckout(plan: string, cycle: string, company?: string, size?: string) {
+  const res = await fetch('/api/v1/checkout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({
+      plan,
+      billingCycle: cycle,
+      ...(company ? { companyName: company } : {}),
+      ...(size ? { companySize: size } : {}),
+    }),
+  })
+  const data = await res.json()
+  if (res.ok && data.checkoutUrl) {
+    window.location.href = data.checkoutUrl
+  } else {
+    // Checkout not available yet (e.g. onboarding needed first) — go to onboarding
+    window.location.href = '/onboarding'
+  }
+}
+
 export default function SignUpPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -23,10 +45,24 @@ export default function SignUpPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const searchParams = useSearchParams()
+
+  const plan = searchParams.get('plan') // 'pro' | 'enterprise' | null
+  const cycle = searchParams.get('cycle') || 'monthly'
+  const company = searchParams.get('company') || ''
+  const size = searchParams.get('size') || ''
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  const afterSignUp = async () => {
+    if (plan === 'pro' || plan === 'enterprise') {
+      await redirectToCheckout(plan, cycle, company, size)
+    } else {
+      window.location.href = '/onboarding'
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -44,7 +80,7 @@ export default function SignUpPage() {
         setLoading(false)
         return
       }
-      window.location.href = '/onboarding'
+      await afterSignUp()
     } catch (err: any) {
       setError(err.message || 'Failed to sign up')
       setLoading(false)
@@ -55,9 +91,10 @@ export default function SignUpPage() {
     setError('')
     setLoading(true)
     try {
+      const callbackURL = plan ? `/sign-up/checkout-redirect?plan=${plan}&cycle=${cycle}&company=${encodeURIComponent(company)}&size=${encodeURIComponent(size)}` : '/dashboard'
       const result = await getAuthClient().signIn.social({
         provider,
-        callbackURL: '/dashboard',
+        callbackURL,
       })
       if (result.error) {
         setError(result.error.message || `Failed to sign up with ${provider}`)
@@ -83,7 +120,11 @@ export default function SignUpPage() {
           </Link>
           <h1 className="text-2xl font-bold mt-4">Create your account</h1>
           <p className="text-[var(--foreground-secondary)]">
-            Get started with Optim for free
+            {plan === 'pro'
+              ? 'Sign up to continue to Pro checkout'
+              : plan === 'enterprise'
+              ? 'Sign up to continue to Enterprise checkout'
+              : 'Get started with Optim for free'}
           </p>
         </div>
 

@@ -44,7 +44,7 @@ export function Footer() {
               <span className="font-display font-bold text-xl">OPTIM</span>
             </Link>
             <p className="text-[var(--foreground-secondary)] text-sm mb-4">
-              Reduce your AI costs by up to 85% with intelligent tracking and optimization.
+              The cost optimization platform for AI teams. Track spend, get AI recommendations, and cut costs by up to 85%.
             </p>
             <div className="flex items-center gap-3">
               {['twitter', 'github', 'linkedin'].map((social) => (

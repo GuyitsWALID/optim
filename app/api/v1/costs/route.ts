@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireSessionWithOrg } from '@/lib/api-auth'
+import { getRetentionCutoffDate } from '@/lib/tier-limits'
 
 // GET /api/v1/costs — Get cost summary (optionally scoped to a project)
 export async function GET(request: Request) {
-  const { organizationId, response } = await requireSessionWithOrg(request)
+  const { organizationId, tier, response } = await requireSessionWithOrg(request)
   if (response) return response
 
   const { searchParams } = new URL(request.url)
@@ -30,6 +31,11 @@ export async function GET(request: Request) {
       break
     default:
       startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+  }
+
+  const retentionCutoff = getRetentionCutoffDate(tier!)
+  if (retentionCutoff && retentionCutoff > startDate) {
+    startDate = retentionCutoff
   }
 
   // Build where clause — project-scoped or all projects in org
