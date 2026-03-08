@@ -246,9 +246,9 @@ code, pre {
 
 /* Orbital timeline custom styles */
 .bg-gradient-orbital {
-  background: linear-gradient(to bottom right, #6366f1, #3b82f6, #14b8a6);
+  background: linear-gradient(to bottom right, var(--accent), var(--accent-secondary));
 }
 
 .shadow-orbital {
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 15px rgba(64, 168, 62, 0.15);
 }

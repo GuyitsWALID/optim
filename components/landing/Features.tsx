@@ -74,14 +74,14 @@ const featureTimeline = [
 
 export function Features() {
   return (
-    <section id="features" className="py-16 sm:py-20 md:py-32 bg-[var(--surface)]">
+    <section id="features" className="py-16 sm:py-20 md:py-32 bg-[var(--bg)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Section header */}
         <div className="text-center mb-12 sm:mb-16">
           <span className="inline-block px-4 py-1.5 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] text-sm font-medium mb-4">
             Features
           </span>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-[var(--foreground)] mb-4">
             Everything you need to cut AI costs
           </h2>
           <p className="text-base sm:text-lg text-[var(--foreground-secondary)] max-w-2xl mx-auto">
