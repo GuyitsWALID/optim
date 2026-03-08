@@ -1,22 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { Check, ArrowRight, ArrowLeft, Building2, User } from 'lucide-react'
-import { createAuthClient } from 'better-auth/react'
-
-// Create auth client singleton
-let authClient: ReturnType<typeof createAuthClient> | null = null
-
-function getAuthClient() {
-  if (!authClient) {
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    authClient = createAuthClient({
-      baseURL: `${baseUrl}/api/auth`,
-    })
-  }
-  return authClient
-}
 
 // Types
 interface OnboardingData {
@@ -96,7 +81,6 @@ const SPEND_OPTIONS = [
 ]
 
 export default function OnboardingPage() {
-  const router = useRouter()
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -114,35 +98,24 @@ export default function OnboardingPage() {
 
   const checkOnboardingStatus = async () => {
     try {
-      // Use auth client to check session
-      const sessionResult = await getAuthClient().getSession()
-
-      // If no session, redirect to sign-in
-      if (!sessionResult.data) {
-        window.location.href = '/sign-in'
-        return
-      }
-
-      // Check if onboarding is already completed
+      // Middleware already ensures the user is authenticated.
+      // Just check if onboarding is already completed via the preferences API.
       const res = await fetch('/api/v1/user/preferences', {
         credentials: 'include',
       })
 
       const result = await res.json()
-      console.log('Onboarding status check:', result)
 
       // If onboarding already completed, redirect to dashboard
       if (result.onboardingCompleted || (result.preferences && result.preferences !== null)) {
-        console.log('Onboarding already completed, redirecting to dashboard...')
         window.location.href = '/dashboard'
         return
       }
 
-      // If no preferences, user needs to complete onboarding - stay on page
+      // Otherwise, user needs to complete onboarding — stay on page
     } catch (error) {
       console.error('Error checking onboarding status:', error)
-      // On error, redirect to sign in
-      window.location.href = '/sign-in'
+      // Don't redirect on error — stay on page so user can retry or complete onboarding
     }
   }
 
@@ -172,16 +145,6 @@ export default function OnboardingPage() {
     setLoading(true)
     setError('')
     try {
-      // Get session to ensure we have one
-      const sessionResult = await getAuthClient().getSession()
-
-      if (!sessionResult.data) {
-        setError('Session expired. Please sign in again.')
-        window.location.href = '/sign-in'
-        return
-      }
-
-      // Use regular fetch with credentials
       const res = await fetch('/api/v1/onboarding', {
         method: 'POST',
         headers: {
@@ -194,15 +157,40 @@ export default function OnboardingPage() {
       const result = await res.json()
 
       if (res.ok) {
-        console.log('Onboarding successful, redirecting to dashboard...')
-        // Use window.location for a hard redirect to ensure it works
+        // Check if there's a pending checkout plan in URL params
+        const params = new URLSearchParams(window.location.search)
+        const plan = params.get('plan')
+        const cycle = params.get('cycle') || 'monthly'
+        const company = params.get('company') || ''
+        const size = params.get('size') || ''
+
+        if (plan === 'pro' || plan === 'enterprise') {
+          // Redirect to checkout for paid plans
+          const checkoutRes = await fetch('/api/v1/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              plan,
+              billingCycle: cycle,
+              ...(company ? { companyName: company } : {}),
+              ...(size ? { companySize: size } : {}),
+            }),
+          })
+          const checkoutData = await checkoutRes.json()
+          if (checkoutRes.ok && checkoutData.checkoutUrl) {
+            window.location.href = checkoutData.checkoutUrl
+            return
+          }
+        }
+
+        // Default: go to dashboard
         window.location.href = '/dashboard'
       } else {
-        console.error('Onboarding error:', result)
         setError(result.error || 'Onboarding failed')
       }
     } catch (error: unknown) {
-      console.error('Onboarding catch error:', error)
+      console.error('Onboarding error:', error)
       setError(error instanceof Error ? error.message : 'An unexpected error occurred')
     } finally {
       setLoading(false)

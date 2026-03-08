@@ -23,14 +23,14 @@ export function middleware(request: NextRequest) {
 
   // If no session and trying to access protected routes
   if (!sessionCookie) {
-    // Redirect to home if trying to access dashboard
-    if (pathname.startsWith('/dashboard')) {
+    if (pathname.startsWith('/dashboard') || pathname === '/onboarding') {
       return NextResponse.redirect(new URL('/', request.url))
     }
     return NextResponse.next()
   }
 
   // If has session, redirect away from auth pages to dashboard
+  // (strict equality so /sign-up/checkout-redirect is NOT blocked)
   if (pathname === '/sign-in' || pathname === '/sign-up') {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }

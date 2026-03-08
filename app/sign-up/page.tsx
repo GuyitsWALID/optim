@@ -17,27 +17,6 @@ function getAuthClient() {
   return authClient
 }
 
-async function redirectToCheckout(plan: string, cycle: string, company?: string, size?: string) {
-  const res = await fetch('/api/v1/checkout', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({
-      plan,
-      billingCycle: cycle,
-      ...(company ? { companyName: company } : {}),
-      ...(size ? { companySize: size } : {}),
-    }),
-  })
-  const data = await res.json()
-  if (res.ok && data.checkoutUrl) {
-    window.location.href = data.checkoutUrl
-  } else {
-    // Checkout not available yet (e.g. onboarding needed first) — go to onboarding
-    window.location.href = '/onboarding'
-  }
-}
-
 function SignUpContent() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -58,7 +37,11 @@ function SignUpContent() {
 
   const afterSignUp = async () => {
     if (plan === 'pro' || plan === 'enterprise') {
-      await redirectToCheckout(plan, cycle, company, size)
+      // Route through onboarding first, then checkout after completion
+      const params = new URLSearchParams({ plan, cycle })
+      if (company) params.set('company', company)
+      if (size) params.set('size', size)
+      window.location.href = `/onboarding?${params.toString()}`
     } else {
       window.location.href = '/onboarding'
     }
@@ -91,7 +74,9 @@ function SignUpContent() {
     setError('')
     setLoading(true)
     try {
-      const callbackURL = plan ? `/sign-up/checkout-redirect?plan=${plan}&cycle=${cycle}&company=${encodeURIComponent(company)}&size=${encodeURIComponent(size)}` : '/dashboard'
+      const callbackURL = plan
+        ? `/onboarding?plan=${plan}&cycle=${cycle}&company=${encodeURIComponent(company)}&size=${encodeURIComponent(size)}`
+        : '/onboarding'
       const result = await getAuthClient().signIn.social({
         provider,
         callbackURL,
