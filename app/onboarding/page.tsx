@@ -160,28 +160,18 @@ export default function OnboardingPage() {
         // Check if there's a pending checkout plan in URL params
         const params = new URLSearchParams(window.location.search)
         const plan = params.get('plan')
-        const cycle = params.get('cycle') || 'monthly'
-        const company = params.get('company') || ''
-        const size = params.get('size') || ''
 
         if (plan === 'pro' || plan === 'enterprise') {
-          // Redirect to checkout for paid plans
-          const checkoutRes = await fetch('/api/v1/checkout', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({
-              plan,
-              billingCycle: cycle,
-              ...(company ? { companyName: company } : {}),
-              ...(size ? { companySize: size } : {}),
-            }),
-          })
-          const checkoutData = await checkoutRes.json()
-          if (checkoutRes.ok && checkoutData.checkoutUrl) {
-            window.location.href = checkoutData.checkoutUrl
-            return
-          }
+          // Redirect to dedicated checkout page for paid plans
+          const checkoutParams = new URLSearchParams()
+          checkoutParams.set('plan', plan)
+          checkoutParams.set('cycle', params.get('cycle') || 'monthly')
+          const company = params.get('company')
+          const size = params.get('size')
+          if (company) checkoutParams.set('company', company)
+          if (size) checkoutParams.set('size', size)
+          window.location.href = `/checkout?${checkoutParams.toString()}`
+          return
         }
 
         // Default: go to dashboard

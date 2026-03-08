@@ -23,7 +23,7 @@ export function middleware(request: NextRequest) {
 
   // If no session and trying to access protected routes
   if (!sessionCookie) {
-    if (pathname.startsWith('/dashboard') || pathname === '/onboarding') {
+    if (pathname.startsWith('/dashboard') || pathname === '/onboarding' || pathname === '/checkout') {
       return NextResponse.redirect(new URL('/', request.url))
     }
     return NextResponse.next()

@@ -31,8 +31,8 @@ export async function POST(request: Request) {
     const checkout = await whop.checkoutConfigurations.create({
       plan_id: planId,
       mode: 'payment',
-      redirect_url: `${appUrl}/dashboard/settings?billing=success`,
-      source_url: `${appUrl}/pricing`,
+      redirect_url: `${appUrl}/dashboard?billing=success`,
+      source_url: `${appUrl}/checkout`,
       metadata: {
         organizationId,
         userId: session?.user.id,
