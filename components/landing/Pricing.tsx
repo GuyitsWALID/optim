@@ -125,7 +125,7 @@ export function Pricing() {
             Simple, transparent pricing
           </h2>
           <p className="text-base sm:text-lg text-[var(--foreground-secondary)] max-w-2xl mx-auto">
-            Start free, upgrade when you're ready. No hidden fees.
+            Start free, upgrade when you&apos;re ready. No hidden fees.
           </p>
         </div>
 

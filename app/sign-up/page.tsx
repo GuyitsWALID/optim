@@ -81,8 +81,8 @@ export default function SignUpPage() {
         return
       }
       await afterSignUp()
-    } catch (err: any) {
-      setError(err.message || 'Failed to sign up')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to sign up')
       setLoading(false)
     }
   }
@@ -100,9 +100,9 @@ export default function SignUpPage() {
         setError(result.error.message || `Failed to sign up with ${provider}`)
         setLoading(false)
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('OAuth error:', err)
-      setError(err.message || `Failed to sign up with ${provider}`)
+      setError(err instanceof Error ? err.message : `Failed to sign up with ${provider}`)
       setLoading(false)
     }
   }

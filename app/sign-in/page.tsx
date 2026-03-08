@@ -43,8 +43,8 @@ export default function SignInPage() {
         return
       }
       window.location.href = '/dashboard'
-    } catch (err: any) {
-      setError(err.message || 'Failed to sign in')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to sign in')
       setLoading(false)
     }
   }
@@ -62,9 +62,9 @@ export default function SignInPage() {
         setLoading(false)
       }
       // If no error, the browser redirect happens automatically
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('OAuth error:', err)
-      setError(err.message || `Failed to sign in with ${provider}`)
+      setError(err instanceof Error ? err.message : `Failed to sign in with ${provider}`)
       setLoading(false)
     }
   }
@@ -167,7 +167,7 @@ export default function SignInPage() {
         </div>
 
         <p className="text-center text-sm text-[var(--foreground-muted)] mt-6">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link href="/sign-up" className="text-[var(--primary)] hover:underline">
             Sign up
           </Link>

@@ -201,9 +201,9 @@ export default function OnboardingPage() {
         console.error('Onboarding error:', result)
         setError(result.error || 'Onboarding failed')
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Onboarding catch error:', error)
-      setError(error.message || 'An unexpected error occurred')
+      setError(error instanceof Error ? error.message : 'An unexpected error occurred')
     } finally {
       setLoading(false)
     }
@@ -301,7 +301,7 @@ export default function OnboardingPage() {
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold mb-2">What type of project is this?</h1>
               <p className="text-[var(--foreground-secondary)]">
-                We'll personalize your experience based on your choice
+                We&apos;ll personalize your experience based on your choice
               </p>
             </div>
 
@@ -483,7 +483,7 @@ export default function OnboardingPage() {
 
             <div>
               <label className="block text-sm font-medium mb-2">
-                What's your estimated monthly LLM spend?
+                What&apos;s your estimated monthly LLM spend?
               </label>
               <div className="flex flex-wrap gap-2">
                 {SPEND_OPTIONS.map((option) => (
