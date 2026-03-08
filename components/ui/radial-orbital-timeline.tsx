@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { ArrowRight, Link, Zap } from "lucide-react";
+import { ArrowRight, Link } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -265,7 +265,7 @@ export default function RadialOrbitalTimeline({
                   absolute top-12  whitespace-nowrap
                   text-xs font-semibold tracking-wider
                   transition-all duration-300
-                  ${isExpanded ? "text-[var(--foreground)] scale-125" : "text-[var(--foreground-secondary)]"}
+                  ${isExpanded ? "text-[var(--foreground)] scale-125" : "text-[var(--foreground)]"}
                 `}
                 >
                   {item.title}
@@ -295,24 +295,8 @@ export default function RadialOrbitalTimeline({
                         {item.title}
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="text-xs text-[var(--foreground-secondary)]">
+                    <CardContent className="text-xs text-[var(--foreground)]">
                       <p>{item.content}</p>
-
-                      <div className="mt-4 pt-3 border-t border-[var(--border)]">
-                        <div className="flex justify-between items-center text-xs mb-1">
-                          <span className="flex items-center">
-                            <Zap size={10} className="mr-1" />
-                            Energy Level
-                          </span>
-                          <span className="font-mono">{item.energy}%</span>
-                        </div>
-                        <div className="w-full h-1 bg-[var(--border)] rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-[var(--accent)] to-[var(--accent-secondary)]"
-                            style={{ width: `${item.energy}%` }}
-                          ></div>
-                        </div>
-                      </div>
 
                       {item.relatedIds.length > 0 && (
                         <div className="mt-4 pt-3 border-t border-[var(--border)]">
