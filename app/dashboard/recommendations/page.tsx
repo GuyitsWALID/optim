@@ -136,7 +136,7 @@ export default function RecommendationsPage() {
               </p>
             </div>
             <a
-              href="/dashboard/settings"
+              href="/checkout?plan=pro&cycle=monthly"
               className="inline-flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium"
               style={{ background: 'var(--accent)', color: '#fff' }}
             >

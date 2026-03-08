@@ -6,7 +6,7 @@ import { StatCard } from '@/components/dashboard/StatCard'
 import { CostChart, CostByModel, CostByProvider } from '@/components/dashboard/Charts'
 import { RecommendationsPanel } from '@/components/dashboard/RecommendationsPanel'
 import { useDashboardStore } from '@/lib/store'
-import { Calendar, FolderKanban, ArrowRight } from 'lucide-react'
+import { Calendar, FolderKanban, ArrowRight, Shield } from 'lucide-react'
 import { useSession } from '@/lib/useSession'
 
 export default function DashboardPage() {
@@ -143,11 +143,23 @@ export default function DashboardPage() {
 
       {billing && (
         <div className="bento-card">
-          <div className="flex items-center justify-between text-sm mb-2">
-            <span style={{ color: 'var(--foreground-muted)' }}>
-              Monthly usage ({billing.tier})
-            </span>
-            <span>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4" style={{ color: billing.tier === 'FREE' ? 'var(--foreground-muted)' : 'var(--accent)' }} />
+              <span className="text-sm font-medium" style={{ color: 'var(--foreground-muted)' }}>
+                Monthly usage
+              </span>
+              <span
+                className="px-2 py-0.5 rounded-full text-xs font-semibold"
+                style={{
+                  background: billing.tier === 'FREE' ? 'var(--surface-secondary)' : 'var(--accent)',
+                  color: billing.tier === 'FREE' ? 'var(--foreground-muted)' : '#fff',
+                }}
+              >
+                {billing.tier}
+              </span>
+            </div>
+            <span className="text-sm">
               {billing.usage.requestsThisMonth.toLocaleString()}
               {billing.limits.requestsPerMonth ? ` / ${billing.limits.requestsPerMonth.toLocaleString()} requests` : ' requests'}
             </span>

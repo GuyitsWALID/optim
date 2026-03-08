@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { User, Save, Loader2, CreditCard, ArrowUpRight } from 'lucide-react'
+import { User, Save, Loader2, CreditCard, ArrowUpRight, Shield, Check, FolderKanban, Zap, Clock, Users, Lightbulb, BarChart3, Bell } from 'lucide-react'
 import { useSession } from '@/lib/useSession'
 import { useDashboardStore } from '@/lib/store'
 
@@ -68,22 +68,8 @@ export default function SettingsPage() {
     }
   }
 
-  const handleUpgradeToPro = async (billingCycle: 'monthly' | 'annual') => {
-    try {
-      const res = await fetch('/api/v1/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ billingCycle }),
-      })
-
-      const data = await res.json()
-      if (res.ok && data.checkoutUrl) {
-        window.location.href = data.checkoutUrl
-      }
-    } catch (error) {
-      console.error('Upgrade failed:', error)
-    }
+  const handleUpgradeToPro = (billingCycle: 'monthly' | 'annual') => {
+    window.location.href = `/checkout?plan=pro&cycle=${billingCycle}`
   }
 
   const requestPct =
@@ -250,16 +236,37 @@ export default function SettingsPage() {
             <Loader2 className="w-6 h-6 animate-spin" style={{ color: 'var(--foreground-muted)' }} />
           </div>
         ) : billing ? (
-          <div className="space-y-5">
+          <div className="space-y-6">
+            {/* Plan header */}
             <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-sm" style={{ color: 'var(--foreground-muted)' }}>Current plan</p>
-                <p className="text-xl font-bold">{billing.tier}</p>
-                {billing.subscription?.status && (
-                  <p className="text-sm" style={{ color: 'var(--foreground-muted)' }}>
-                    Subscription status: {billing.subscription.status}
-                  </p>
-                )}
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-10 h-10 rounded-lg flex items-center justify-center"
+                  style={{
+                    background: billing.tier === 'FREE' ? 'var(--surface-secondary)' : 'var(--accent)',
+                  }}
+                >
+                  <Shield className="w-5 h-5" style={{ color: billing.tier === 'FREE' ? 'var(--foreground-muted)' : '#fff' }} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xl font-bold">{billing.tier} Plan</p>
+                    <span
+                      className="px-2 py-0.5 rounded-full text-xs font-semibold"
+                      style={{
+                        background: billing.tier === 'FREE' ? 'var(--surface-secondary)' : 'var(--accent)',
+                        color: billing.tier === 'FREE' ? 'var(--foreground-muted)' : '#fff',
+                      }}
+                    >
+                      {billing.subscription?.status === 'ACTIVE' ? 'Active' : billing.tier === 'FREE' ? 'Free' : billing.subscription?.status || 'Active'}
+                    </span>
+                  </div>
+                  {billing.subscription?.periodEnd && (
+                    <p className="text-sm" style={{ color: 'var(--foreground-muted)' }}>
+                      Renews {new Date(billing.subscription.periodEnd).toLocaleDateString()}
+                    </p>
+                  )}
+                </div>
               </div>
               {billing.tier === 'FREE' ? (
                 <div className="flex gap-2">
@@ -291,6 +298,47 @@ export default function SettingsPage() {
               ) : null}
             </div>
 
+            {/* Plan features grid */}
+            <div
+              className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 rounded-lg"
+              style={{ background: 'var(--bg)', border: '1px solid var(--border)' }}
+            >
+              <div className="flex items-center gap-2 text-sm">
+                <FolderKanban className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--accent)' }} />
+                <span>{billing.limits.projects ? `${billing.limits.projects} projects` : 'Unlimited projects'}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Zap className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--accent)' }} />
+                <span>{billing.limits.requestsPerMonth ? `${(billing.limits.requestsPerMonth / 1000).toLocaleString()}K req/mo` : 'Unlimited requests'}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Clock className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--accent)' }} />
+                <span>{billing.limits.retentionDays}d retention</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Users className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--accent)' }} />
+                <span>{billing.limits.teamSeats ? `${billing.limits.teamSeats} seats` : 'Unlimited seats'}</span>
+              </div>
+            </div>
+
+            {/* Pro features status */}
+            {billing.tier !== 'FREE' && (
+              <div className="flex flex-wrap gap-3">
+                {[
+                  { icon: Lightbulb, label: 'AI Recommendations', enabled: true },
+                  { icon: Zap, label: 'Auto-Optimize', enabled: true },
+                  { icon: Bell, label: 'Alerts & Budgets', enabled: true },
+                  { icon: BarChart3, label: 'Benchmarking', enabled: true },
+                ].map(({ icon: Icon, label }) => (
+                  <div key={label} className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-full" style={{ background: 'var(--accent)', color: '#fff' }}>
+                    <Check className="w-3 h-3" />
+                    {label}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Usage bar */}
             <div>
               <div className="flex items-center justify-between text-sm mb-2">
                 <span style={{ color: 'var(--foreground-muted)' }}>Requests this month</span>
@@ -305,6 +353,28 @@ export default function SettingsPage() {
                   style={{
                     width: `${requestPct}%`,
                     background: requestPct > 90 ? 'var(--error)' : requestPct >= 70 ? 'var(--warning)' : 'var(--success, #22c55e)',
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Projects usage */}
+            <div>
+              <div className="flex items-center justify-between text-sm mb-2">
+                <span style={{ color: 'var(--foreground-muted)' }}>Projects</span>
+                <span>
+                  {billing.usage.projects}
+                  {billing.limits.projects ? ` / ${billing.limits.projects}` : ''}
+                </span>
+              </div>
+              <div className="w-full h-2 rounded-full" style={{ background: 'var(--surface-secondary)' }}>
+                <div
+                  className="h-2 rounded-full"
+                  style={{
+                    width: billing.limits.projects
+                      ? `${Math.min(100, (billing.usage.projects / billing.limits.projects) * 100)}%`
+                      : '5%',
+                    background: 'var(--success, #22c55e)',
                   }}
                 />
               </div>
