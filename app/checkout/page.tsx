@@ -3,11 +3,13 @@
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Shield, Check, Loader2 } from 'lucide-react'
+import { ArrowLeft, Shield, Check, Loader2, ExternalLink, Zap, CreditCard } from 'lucide-react'
 
-const PLAN_DETAILS: Record<string, { name: string; features: string[] }> = {
+const PLAN_DETAILS: Record<string, { name: string; price: string; annualPrice?: string; features: string[] }> = {
   pro: {
     name: 'Pro',
+    price: '$49/mo',
+    annualPrice: '$39/mo',
     features: [
       '10 projects',
       '500,000 requests/month',
@@ -21,6 +23,7 @@ const PLAN_DETAILS: Record<string, { name: string; features: string[] }> = {
   },
   enterprise: {
     name: 'Enterprise',
+    price: 'From $299/mo',
     features: [
       'Everything in Pro',
       'Unlimited projects',
@@ -46,6 +49,7 @@ function CheckoutContent() {
   const size = searchParams.get('size') || ''
 
   const planInfo = PLAN_DETAILS[plan] || PLAN_DETAILS.pro
+  const displayPrice = cycle === 'annual' && planInfo.annualPrice ? planInfo.annualPrice : planInfo.price
 
   useEffect(() => {
     async function initCheckout() {
@@ -93,84 +97,102 @@ function CheckoutContent() {
           </div>
           <div className="flex items-center gap-2 text-sm text-[var(--foreground-secondary)]">
             <Shield className="w-4 h-4" />
-            <span>Secure checkout</span>
+            <span>Secure checkout powered by Whop</span>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
-          {/* Left: Plan summary */}
-          <div className="lg:col-span-2">
-            <div className="sticky top-8">
-              <h1 className="text-2xl sm:text-3xl font-display font-bold mb-2">
-                Upgrade to {planInfo.name}
-              </h1>
-              <p className="text-[var(--foreground-secondary)] mb-6">
-                {cycle === 'annual' ? 'Annual billing' : 'Monthly billing'}
-                {plan === 'pro' && cycle === 'annual' && (
-                  <span className="ml-2 text-[var(--accent)] font-medium">Save 20%</span>
-                )}
-              </p>
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
+        {/* Plan card */}
+        <div className="card p-8 sm:p-10">
+          {/* Plan header */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] text-sm font-medium mb-4">
+              <Zap className="w-4 h-4" />
+              {planInfo.name} Plan
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-display font-bold mb-2">
+              Upgrade to {planInfo.name}
+            </h1>
+            <div className="text-2xl font-bold text-[var(--accent)] mb-1">
+              {displayPrice}
+            </div>
+            <p className="text-[var(--foreground-secondary)]">
+              {cycle === 'annual' ? 'Billed annually' : 'Billed monthly'}
+              {plan === 'pro' && cycle === 'annual' && (
+                <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] text-xs font-medium">
+                  Save 20%
+                </span>
+              )}
+            </p>
+          </div>
 
-              {/* Plan features */}
-              <div className="card p-6">
-                <h3 className="font-semibold mb-4">{planInfo.name} plan includes:</h3>
-                <ul className="space-y-3">
-                  {planInfo.features.map((feature, i) => (
-                    <li key={i} className="flex items-start gap-3 text-sm">
-                      <Check className="w-4 h-4 text-[var(--accent)] mt-0.5 shrink-0" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
+          {/* Divider */}
+          <div className="border-t border-[var(--border)] my-8" />
+
+          {/* Features grid */}
+          <div className="mb-8">
+            <h3 className="font-semibold mb-4 text-center">Everything included:</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {planInfo.features.map((feature, i) => (
+                <div key={i} className="flex items-start gap-3 text-sm">
+                  <Check className="w-4 h-4 text-[var(--accent)] mt-0.5 shrink-0" />
+                  <span>{feature}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-[var(--border)] my-8" />
+
+          {/* CTA */}
+          <div className="text-center space-y-4">
+            {loading && (
+              <div className="flex flex-col items-center py-4">
+                <Loader2 className="w-6 h-6 animate-spin text-[var(--accent)] mb-2" />
+                <p className="text-sm text-[var(--foreground-secondary)]">Preparing secure checkout...</p>
               </div>
+            )}
 
-              {/* Skip for now */}
-              <div className="mt-6 text-center">
-                <Link
-                  href="/dashboard"
-                  className="text-sm text-[var(--foreground-muted)] hover:text-[var(--foreground-secondary)] transition-colors"
+            {error && (
+              <div className="space-y-3">
+                <p className="text-red-500 text-sm">{error}</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="btn-primary px-8 py-3"
                 >
-                  Skip for now — continue with Free plan
-                </Link>
+                  Try again
+                </button>
               </div>
-            </div>
+            )}
+
+            {checkoutUrl && !error && (
+              <>
+                <a
+                  href={checkoutUrl}
+                  className="btn-primary inline-flex items-center gap-2 px-8 py-3 text-lg"
+                >
+                  <CreditCard className="w-5 h-5" />
+                  Continue to Payment
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+                <p className="text-xs text-[var(--foreground-muted)]">
+                  You&apos;ll be redirected to our secure payment partner to complete your purchase
+                </p>
+              </>
+            )}
           </div>
+        </div>
 
-          {/* Right: Whop checkout iframe */}
-          <div className="lg:col-span-3">
-            <div className="card overflow-hidden" style={{ minHeight: '600px' }}>
-              {loading && (
-                <div className="flex flex-col items-center justify-center py-20">
-                  <Loader2 className="w-8 h-8 animate-spin text-[var(--accent)] mb-4" />
-                  <p className="text-[var(--foreground-secondary)]">Preparing checkout...</p>
-                </div>
-              )}
-
-              {error && (
-                <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-                  <p className="text-red-500 mb-4">{error}</p>
-                  <button
-                    onClick={() => window.location.reload()}
-                    className="btn-primary px-6 py-2"
-                  >
-                    Try again
-                  </button>
-                </div>
-              )}
-
-              {checkoutUrl && !error && (
-                <iframe
-                  src={checkoutUrl}
-                  className="w-full border-0"
-                  style={{ minHeight: '600px', height: '100%' }}
-                  title="Whop Checkout"
-                  allow="payment"
-                />
-              )}
-            </div>
-          </div>
+        {/* Skip link */}
+        <div className="mt-8 text-center">
+          <Link
+            href="/dashboard"
+            className="text-sm text-[var(--foreground-muted)] hover:text-[var(--foreground-secondary)] transition-colors"
+          >
+            Skip for now — continue with Free plan
+          </Link>
         </div>
       </div>
     </div>
